@@ -41,10 +41,11 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     "/",
-    "/analytics/:path*",
-    "/revenue/:path*",
-    "/settings/:path*",
-    "/subscriptions/:path*",
+    "/ai-insights/:path*",
+    "/loan-management/:path*",
+    "/my-profile/:path*",
+    "/applications/:path*",
     "/users/:path*",
+    "/supports/:path*",
   ],
 };

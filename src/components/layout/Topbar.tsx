@@ -37,13 +37,13 @@ export default function Topbar({ onOpenSidebar }: TopbarProps) {
 
   const pageMap: Record<string, { title: string; section: string }> = {
     "/": { title: "Dashboard", section: "Dashboard" },
-    "/analytics": { title: "AI Insights", section: "Dashboard" },
+    "/ai-insights": { title: "AI Insights", section: "Dashboard" },
     "/users": { title: "Users", section: "Dashboard" },
-    "/subscriptions": { title: "Applications", section: "Dashboard" },
-    "/revenue": { title: "Loan Management", section: "Dashboard" },
+    "/applications": { title: "Applications", section: "Dashboard" },
+    "/loan-management": { title: "Loan Management", section: "Dashboard" },
     "/faq": { title: "FAQ", section: "Dashboard" },
     "/supports": { title: "Messages", section: "Dashboard" },
-    "/settings": { title: "My Profile", section: "Dashboard" },
+    "/my-profile": { title: "My Profile", section: "Dashboard" },
   };
 
   const current = pageMap[pathname] ?? {
@@ -121,7 +121,7 @@ export default function Topbar({ onOpenSidebar }: TopbarProps) {
             </div>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <Link href="/settings" className="flex items-center gap-2">
+              <Link href="/my-profile" className="flex items-center gap-2">
                 <Settings className="h-4 w-4" />
                 Settings
               </Link>
