@@ -26,11 +26,11 @@ export default function MessagesPage() {
   // Derived stats
   const messages = msgData?.messages ?? [];
   const totalCount = msgData?.count ?? 0;
-  const newCount = messages.filter((m) => m.status === "new").length;
+  const newCount = messages.filter((m: any) => m.status === "new").length;
   const inProgressCount = messages.filter(
-    (m) => m.status === "in_progress"
+    (m: any) => m.status === "in_progress"
   ).length;
-  const resolvedCount = messages.filter((m) => m.status === "resolved").length;
+  const resolvedCount = messages.filter((m: any) => m.status === "resolved").length;
 
   const stats = [
     {

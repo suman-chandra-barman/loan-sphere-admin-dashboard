@@ -14,7 +14,40 @@ import {
   TableHeader,
   TableRow,  
 } from "@/components/ui/table";
-import type { AdminUser, UsersSummaryData } from "@/types/users";
+export interface UsersSummaryData {
+  total_users: number;
+  filtered_count: number;
+  showing: number;
+  page: number;
+  page_size: number;
+  total_pages: number;
+}
+
+export interface AdminUser {
+  id: string | number;
+  profile_image: string | null;
+  full_name: string;
+  email: string;
+  whatsapp_number?: string | null;
+  initials: string;
+  role: string;
+  plan?: {
+    name: string;
+    price: number | string;
+    billing_cycle: string;
+  } | null;
+  family?: {
+    name: string;
+  } | null;
+  members_count?: number;
+  membership?: {
+    relation_display: string;
+  } | null;
+  join_date_display: string;
+  is_email_verified: boolean;
+  status: string;
+  status_display: string;
+}
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 function getRoleBadge(role: string) {

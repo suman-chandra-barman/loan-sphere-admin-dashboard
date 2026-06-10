@@ -3,7 +3,11 @@
 import { Pie, PieChart, ResponsiveContainer, Cell, Tooltip } from "recharts";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { SubscribersByPlan } from "@/types/dashboard";
+export interface SubscribersByPlan {
+  plan_name: string;
+  count: number;
+  percentage: string;
+}
 
 const COLORS = ["#d8b78a", "#c39b63", "#ead7b7", "#b87d4b", "#f5e3c6"];
 

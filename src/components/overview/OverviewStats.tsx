@@ -3,7 +3,19 @@
 import { Activity, CreditCard, DollarSign, Users } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import type { DashboardStats } from "@/types/dashboard";
+export interface StatMetric {
+  value: number | string;
+  change_percent: string | null;
+  change_label?: string;
+  ratio_label?: string;
+}
+
+export interface DashboardStats {
+  total_users: StatMetric;
+  active_subscriptions: StatMetric;
+  monthly_revenue: StatMetric;
+  churn_rate: StatMetric;
+}
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
@@ -50,7 +62,7 @@ export default function OverviewStats({ stats }: OverviewStatsProps) {
     },
     {
       label: "Monthly Revenue (MRR)",
-      value: `$${parseFloat(stats.monthly_revenue.value).toLocaleString(undefined, { minimumFractionDigits: 2 })}`,
+      value: `$${parseFloat(String(stats.monthly_revenue.value)).toLocaleString(undefined, { minimumFractionDigits: 2 })}`,
       change: formatPercent(stats.monthly_revenue.change_percent),
       note: stats.monthly_revenue.change_label,
       icon: DollarSign,
@@ -61,7 +73,7 @@ export default function OverviewStats({ stats }: OverviewStatsProps) {
     },
     {
       label: "Churn Rate",
-      value: `${parseFloat(stats.churn_rate.value).toFixed(2)}%`,
+      value: `${parseFloat(String(stats.churn_rate.value)).toFixed(2)}%`,
       change: formatPercent(stats.churn_rate.change_percent),
       note: stats.churn_rate.change_label,
       icon: Activity,

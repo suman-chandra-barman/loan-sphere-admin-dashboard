@@ -74,3 +74,16 @@ export interface ResetPasswordResponseData {
 }
 
 export type ResetPasswordResponse = ApiResponse<ResetPasswordResponseData>;
+
+export interface RegisterRequest {
+  full_name: string;
+  email: string;
+  whatsapp_number: string;
+  password: string;
+  confirm_password: string;
+}
+
+export interface VerifyEmailRequest {
+  email: string;
+  otp_code: string;
+}

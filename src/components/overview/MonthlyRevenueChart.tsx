@@ -11,7 +11,11 @@ import {
 } from "recharts";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { MonthlyRevenuePoint } from "@/types/dashboard";
+export interface MonthlyRevenuePoint {
+  month: string;
+  revenue: string;
+  year: string;
+}
 
 interface MonthlyRevenueChartProps {
   data: MonthlyRevenuePoint[];

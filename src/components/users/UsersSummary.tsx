@@ -1,7 +1,14 @@
 "use client";
 
 import { Card } from "@/components/ui/card";
-import type { UsersSummaryData } from "@/types/users";
+export interface UsersSummaryData {
+  total_users: number;
+  filtered_count: number;
+  showing: number;
+  page: number;
+  page_size: number;
+  total_pages: number;
+}
 
 interface Props {
   summary: UsersSummaryData;
