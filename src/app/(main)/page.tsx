@@ -1,7 +1,7 @@
 "use client";
 
 import { ClipboardCheck } from "lucide-react";
-
+import Link from "next/link";
 import LoanOverviewStats from "@/components/dashboard/LoanOverviewStats";
 import MonthlyDisbursementsChart from "@/components/dashboard/MonthlyDisbursementsChart";
 import LoanTypeDistributionChart from "@/components/dashboard/LoanTypeDistributionChart";
@@ -24,10 +24,12 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        <button className="inline-flex items-center gap-2 rounded-xl bg-indigo-900 hover:bg-indigo-950 px-4 py-2.5 text-xs font-bold text-white shadow-sm hover:shadow transition-all hover:-translate-y-0.5 active:translate-y-0">
-          <ClipboardCheck className="h-4.5 w-4.5" />
-          <span>Review Applications</span>
-        </button>
+        <Link href="/applications">
+          <button className="inline-flex items-center gap-2 rounded-xl bg-indigo-900 hover:bg-indigo-950 px-4 py-2.5 text-xs font-bold text-white shadow-sm hover:shadow transition-all hover:-translate-y-0.5 active:translate-y-0 cursor-pointer">
+            <ClipboardCheck className="h-4.5 w-4.5" />
+            <span>Review Applications</span>
+          </button>
+        </Link>
       </div>
 
       {/* KPI Stats section */}

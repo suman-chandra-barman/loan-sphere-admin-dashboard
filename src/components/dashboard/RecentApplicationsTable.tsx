@@ -1,8 +1,11 @@
 "use client";
 
-import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+import React, { useState } from "react";
+import { ArrowRight } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import Link from "next/link";
+import Pagination from "@/components/ui/pagination";
 
 const APPLICATIONS = [
   {
@@ -95,6 +98,15 @@ function getStatusStyles(status: string) {
 }
 
 export default function RecentApplicationsTable() {
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
+  const totalPages = Math.ceil(APPLICATIONS.length / itemsPerPage);
+  const paginatedApps = APPLICATIONS.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
   return (
     <div className="space-y-4">
       <Card className="border-zinc-200/60 shadow-sm rounded-2xl overflow-hidden bg-white">
@@ -102,10 +114,12 @@ export default function RecentApplicationsTable() {
           <CardTitle className="text-base font-bold text-zinc-900">
             Recent Applications
           </CardTitle>
-          <button className="flex items-center gap-1 text-xs font-semibold text-amber-700 transition-colors hover:text-amber-800">
-            <span>View all</span>
-            <ArrowRight className="h-3.5 w-3.5" />
-          </button>
+          <Link href="/applications">
+            <button className="flex items-center gap-1 text-xs font-semibold text-amber-700 transition-colors hover:text-amber-800 cursor-pointer">
+              <span>View all</span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </button>
+          </Link>
         </CardHeader>
 
         <CardContent className="p-0">
@@ -135,7 +149,7 @@ export default function RecentApplicationsTable() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {APPLICATIONS.map((app) => (
+                {paginatedApps.map((app) => (
                   <TableRow
                     key={app.code}
                     className="group border-b border-zinc-100 hover:bg-zinc-50/35 transition-colors duration-200"
@@ -165,9 +179,12 @@ export default function RecentApplicationsTable() {
                       {app.date}
                     </TableCell>
                     <TableCell className="px-6 py-4.5 text-right">
-                      <button className="text-zinc-300 transition-colors duration-300 group-hover:text-zinc-600">
-                        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                      </button>
+                      <Link 
+                        href={`/applications/${app.code}`}
+                        className="inline-flex items-center justify-center text-zinc-300 hover:text-zinc-600 transition-colors duration-300 group/btn p-1"
+                      >
+                        <ArrowRight className="h-4 w-4 transition-transform group-hover/btn:translate-x-0.5" />
+                      </Link>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -178,36 +195,14 @@ export default function RecentApplicationsTable() {
       </Card>
 
       {/* Pagination Footer */}
-      <div className="flex items-center justify-end py-2">
-        <div className="flex items-center gap-1.5 text-sm font-semibold text-zinc-500">
-          <button className="flex items-center gap-1 px-3 py-2 rounded-lg hover:text-zinc-800 transition-colors disabled:opacity-50">
-            <ChevronLeft className="h-4 w-4" />
-            <span>Previous</span>
-          </button>
-          
-          <button className="flex h-9 w-9 items-center justify-center rounded-lg bg-zinc-900 text-white shadow-md font-bold">
-            1
-          </button>
-          <button className="flex h-9 w-9 items-center justify-center rounded-lg hover:bg-zinc-100 hover:text-zinc-800 transition-colors">
-            2
-          </button>
-          <button className="flex h-9 w-9 items-center justify-center rounded-lg hover:bg-zinc-100 hover:text-zinc-800 transition-colors">
-            3
-          </button>
-          <span className="px-1 text-zinc-400">...</span>
-          <button className="flex h-9 w-9 items-center justify-center rounded-lg hover:bg-zinc-100 hover:text-zinc-800 transition-colors">
-            67
-          </button>
-          <button className="flex h-9 w-9 items-center justify-center rounded-lg hover:bg-zinc-100 hover:text-zinc-800 transition-colors">
-            68
-          </button>
-
-          <button className="flex items-center gap-1 px-3 py-2 rounded-lg hover:text-zinc-800 transition-colors">
-            <span>Next</span>
-            <ChevronRight className="h-4 w-4" />
-          </button>
-        </div>
-      </div>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalItems={APPLICATIONS.length}
+        itemsPerPage={itemsPerPage}
+        onPageChange={setCurrentPage}
+        className="justify-end py-2 px-1"
+      />
     </div>
   );
 }
