@@ -1,17 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Filter, Search, X } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
+import React, { useEffect, useState } from "react";
+import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 export interface FiltersState {
   search: string;
@@ -19,16 +10,15 @@ export interface FiltersState {
   status: string;
 }
 
-interface Props {
+interface UsersFiltersProps {
   filters: FiltersState;
   onChange: (next: FiltersState) => void;
-  onExport?: () => void;
 }
 
-export default function UsersFilters({ filters, onChange, onExport }: Props) {
-  // Debounce the search input so we don't fire a request on every keystroke
+export default function UsersFilters({ filters, onChange }: UsersFiltersProps) {
   const [inputValue, setInputValue] = useState(filters.search);
 
+  // Debounce the search input
   useEffect(() => {
     const id = setTimeout(() => {
       if (inputValue !== filters.search) {
@@ -36,26 +26,21 @@ export default function UsersFilters({ filters, onChange, onExport }: Props) {
       }
     }, 400);
     return () => clearTimeout(id);
-  }, [inputValue]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [inputValue, filters, onChange]);
 
-  const hasActiveFilters =
-    filters.search !== "" ||
-    filters.plan !== "all" ||
-    filters.status !== "all";
-
-  function reset() {
-    setInputValue("");
-    onChange({ search: "", plan: "all", status: "all" });
-  }
+  // If external filters reset, sync search input state
+  useEffect(() => {
+    setInputValue(filters.search);
+  }, [filters.search]);
 
   return (
     <div className="flex flex-wrap items-center gap-3">
-      {/* Search */}
+      {/* Search Input Box */}
       <div className="relative flex-1 min-w-[220px]">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+        <Search className="pointer-events-none absolute left-3 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-zinc-400" />
         <Input
-          className="pl-9 pr-9"
-          placeholder="Search by name or email…"
+          className="pl-10 pr-10 border border-zinc-200/80 bg-white shadow-xs rounded-xl h-11 text-sm text-zinc-900 focus-visible:ring-2 focus-visible:ring-[#A31D1D] focus-visible:ring-offset-2"
+          placeholder="Search by name or email..."
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
         />
@@ -65,60 +50,25 @@ export default function UsersFilters({ filters, onChange, onExport }: Props) {
               setInputValue("");
               onChange({ ...filters, search: "" });
             }}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-700 transition-colors"
+            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-700 transition-colors cursor-pointer"
           >
-            <X className="h-3.5 w-3.5" />
+            <X className="h-4 w-4" />
           </button>
         )}
       </div>
 
-      {/* Plan filter */}
-      <div className="min-w-[140px]">
-        <Select
-          value={filters.plan}
-          onValueChange={(val) => onChange({ ...filters, plan: val, search: inputValue })}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="All Plans" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Plans</SelectItem>
-            <SelectItem value="basic_family">Basic Family</SelectItem>
-            <SelectItem value="premium_family">Premium Family</SelectItem>
-            <SelectItem value="individual">Individual</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Status filter */}
-      <div className="min-w-[140px]">
-        <Select
+      {/* Single Dropdown Status Filter on the Right */}
+      <div className="w-full sm:w-[160px] shrink-0">
+        <select
           value={filters.status}
-          onValueChange={(val) => onChange({ ...filters, status: val, search: inputValue })}
+          onChange={(e) => onChange({ ...filters, status: e.target.value })}
+          className="h-11 w-full rounded-xl border border-zinc-200/80 bg-white px-3 text-sm font-semibold text-zinc-700 shadow-xs focus:outline-none focus:ring-2 focus:ring-[#A31D1D] cursor-pointer"
         >
-          <SelectTrigger>
-            <SelectValue placeholder="All Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="inactive">Inactive</SelectItem>
-          </SelectContent>
-        </Select>
+          <option value="all">All Status</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
       </div>
-
-      {/* Clear filters */}
-      {hasActiveFilters && (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={reset}
-          className="gap-1.5 text-zinc-500 hover:text-zinc-900"
-        >
-          <X className="h-3.5 w-3.5" />
-          Clear
-        </Button>
-      )}
     </div>
   );
 }
