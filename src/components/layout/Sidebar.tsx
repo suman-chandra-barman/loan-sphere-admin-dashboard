@@ -33,7 +33,7 @@ const navigation: NavItem[] = [
   { name: "Applications", href: "/applications", icon: FileText },
   { name: "Loan Management", href: "/loan-management", icon: ScrollText },
   { name: "Users", href: "/users", icon: Users },
-  { name: "Messages", href: "/supports", icon: MessageSquare },
+  { name: "Messages", href: "/messages", icon: MessageSquare },
   { name: "AI Insights", href: "/ai-insights", icon: Brain },
   { name: "My Profile", href: "/my-profile", icon: CircleUser },
 ];
