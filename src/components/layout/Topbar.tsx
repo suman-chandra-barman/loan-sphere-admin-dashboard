@@ -42,7 +42,7 @@ export default function Topbar({ onOpenSidebar }: TopbarProps) {
     "/applications": { title: "Applications", section: "Dashboard" },
     "/loan-management": { title: "Loan Management", section: "Dashboard" },
     "/faq": { title: "FAQ", section: "Dashboard" },
-    "/supports": { title: "Messages", section: "Dashboard" },
+    "/messages": { title: "Messages", section: "Dashboard" },
     "/my-profile": { title: "My Profile", section: "Dashboard" },
   };
 
