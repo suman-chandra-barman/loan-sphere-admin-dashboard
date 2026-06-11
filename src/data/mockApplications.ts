@@ -5,7 +5,10 @@ import {
   CheckCircle2, 
   Clock, 
   XCircle, 
-  AlertCircle 
+  AlertCircle,
+  TrendingUp,
+  Upload,
+  StickyNote
 } from "lucide-react";
 import { LoanApplication } from "@/types/application";
 
@@ -20,26 +23,39 @@ export const INITIAL_APPLICATIONS: LoanApplication[] = [
     dti: 32,
     date: "Jan 20, 2024",
     details: {
-      email: "sarah.j@example.com",
-      phone: "+1 (555) 123-4567",
-      creditScore: 745,
-      monthlyIncome: 8500,
-      monthlyDebt: 2720,
-      employment: "Senior Software Engineer at Google (5 years)",
+      email: "sarah@example.com",
+      phone: "+1 (555) 010-1234",
+      creditScore: 742,
+      monthlyIncome: 7083, // $85,000 / 12
+      monthlyDebt: 3200,
+      employment: "Full Time at TechCorp Inc.",
       term: "30 Years Fixed",
-      rate: "6.5%",
-      purpose: "Primary Residence Purchase",
+      rate: "6.75%",
+      purpose: "Purchase primary residence in San Francisco",
       checklist: {
         idVerified: true,
         incomeVerified: true,
         taxReturnsVerified: true,
         creditChecked: true
       },
+      documents: [
+        { id: "LS-2024-001-doc-1", name: "Pay Stub - January 2024.pdf", size: "245 KB", date: "Jan 28, 2024", status: "Approved" },
+        { id: "LS-2024-001-doc-2", name: "Bank Statement - Nov 2023.pdf", size: "1.2 MB", date: "Jan 28, 2024", status: "Approved" },
+        { id: "LS-2024-001-doc-3", name: "Bank Statement - Dec 2023.pdf", size: "1.1 MB", date: "Jan 28, 2024", status: "Approved" },
+        { id: "LS-2024-001-doc-4", name: "Tax Return 2022.pdf", size: "892 KB", date: "Jan 28, 2024", status: "Approved" },
+        { id: "LS-2024-001-doc-5", name: "Property Appraisal Report.pdf", size: "3.4 MB", date: "Feb 02, 2024", status: "Approved" }
+      ],
+      notes: [
+        { id: "LS-2024-001-note-1", author: "Alex Rivera", content: "Strong credit history, stable employment. Approved with standard terms.", date: "Feb 10, 2024, 04:00 PM" }
+      ],
       timeline: [
-        { label: "Application Created", date: "Jan 10, 2024", icon: FileText, color: "text-zinc-500 bg-zinc-100" },
-        { label: "AI Underwriting Cleared", date: "Jan 12, 2024", icon: Brain, color: "text-purple-600 bg-purple-50" },
-        { label: "Income & Tax Audited", date: "Jan 18, 2024", icon: ShieldCheck, color: "text-blue-600 bg-blue-50" },
-        { label: "Final Approval Issued", date: "Jan 20, 2024", icon: CheckCircle2, color: "text-emerald-600 bg-emerald-50" }
+        { label: "Application submitted by customer", date: "Sarah Johnson • Jan 20, 2024, 04:00 PM", icon: FileText, color: "text-zinc-500 bg-zinc-50" },
+        { label: "Status changed from submitted to under_review", date: "Alex Rivera • Jan 22, 2024, 03:00 PM", icon: TrendingUp, color: "text-amber-600 bg-amber-50" },
+        { label: "AI risk assessment completed. Score: 78/100, Recommendation: Approve", date: "AI Engine • Jan 23, 2024, 08:00 PM", icon: Brain, color: "text-purple-600 bg-purple-50" },
+        { label: "Additional documents requested: Bank statements (3 months), Tax returns (2 years)", date: "Alex Rivera • Jan 25, 2024, 05:00 PM", icon: Upload, color: "text-orange-600 bg-orange-50" },
+        { label: "Customer uploaded 4 documents", date: "Sarah Johnson • Jan 28, 2024, 10:00 PM", icon: ShieldCheck, color: "text-blue-600 bg-blue-50" },
+        { label: "Admin note: Strong credit history, stable employment for 4+ years", date: "Alex Rivera • Feb 10, 2024, 04:00 PM", icon: FileText, color: "text-zinc-500 bg-zinc-50" },
+        { label: "Application approved with standard 30-year fixed rate of 6.75%", date: "Alex Rivera • Feb 15, 2024, 08:30 PM", icon: ShieldCheck, color: "text-emerald-600 bg-emerald-50" }
       ]
     }
   },

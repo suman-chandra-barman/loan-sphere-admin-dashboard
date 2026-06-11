@@ -14,6 +14,21 @@ export interface Checklist {
   creditChecked: boolean;
 }
 
+export interface DocumentItem {
+  id: string;
+  name: string;
+  size: string;
+  date: string;
+  status: "Approved" | "Rejected" | "Pending";
+}
+
+export interface NoteItem {
+  id: string;
+  author: string;
+  content: string;
+  date: string;
+}
+
 export interface LoanApplicationDetails {
   email: string;
   phone: string;
@@ -26,6 +41,8 @@ export interface LoanApplicationDetails {
   purpose: string;
   checklist: Checklist;
   timeline: TimelineEvent[];
+  documents?: DocumentItem[];
+  notes?: NoteItem[];
 }
 
 export interface LoanApplication {

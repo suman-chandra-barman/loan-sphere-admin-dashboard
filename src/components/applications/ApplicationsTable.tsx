@@ -4,6 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { LoanApplication } from "@/types/application";
+import Link from "next/link";
 
 interface ApplicationsTableProps {
   applications: LoanApplication[];
@@ -127,10 +128,13 @@ export default function ApplicationsTable({
                     <TableCell className="px-6 py-4.5 text-zinc-400 font-semibold text-sm">
                       {app.date}
                     </TableCell>
-                    <TableCell className="px-6 py-4.5 text-right">
-                      <button className="text-zinc-300 transition-colors duration-300 group-hover:text-zinc-600">
-                        <ArrowRight className="h-4.5 w-4.5 transition-transform group-hover:translate-x-0.5" />
-                      </button>
+                    <TableCell className="px-6 py-4.5 text-right" onClick={(e) => e.stopPropagation()}>
+                      <Link 
+                        href={`/applications/${app.code}`}
+                        className="inline-flex items-center justify-center text-zinc-300 hover:text-zinc-600 transition-colors duration-300 group/btn p-1"
+                      >
+                        <ArrowRight className="h-4.5 w-4.5 transition-transform group-hover/btn:translate-x-0.5" />
+                      </Link>
                     </TableCell>
                   </TableRow>
                 ))
