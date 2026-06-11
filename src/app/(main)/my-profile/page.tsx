@@ -521,71 +521,6 @@ export default function MyProfilePage() {
 
         {/* Right Column (lg:col-span-1) */}
         <div className="space-y-6">
-          
-          {/* Card: Notifications */}
-          <Card className="border-zinc-200/60 shadow-xs rounded-2xl bg-white overflow-hidden">
-            {/* Header */}
-            <div className="p-6 pb-4 border-b border-zinc-100 flex items-center gap-3">
-              <div className="h-9 w-9 rounded-xl bg-zinc-50 border border-zinc-100 flex items-center justify-center">
-                <Bell className="h-4.5 w-4.5 text-zinc-500" />
-              </div>
-              <div>
-                <h3 className="font-bold text-zinc-900 text-sm">Notifications</h3>
-                <p className="text-xs text-zinc-500">How you receive alerts</p>
-              </div>
-            </div>
-
-            {/* Switch list */}
-            <div className="p-6 space-y-5">
-              {/* Row 1: Email Notifications */}
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="font-bold text-zinc-850 text-sm">Email notifications</p>
-                  <p className="text-xs text-zinc-400">Decisions & updates</p>
-                </div>
-                {/* Switch button */}
-                <button
-                  type="button"
-                  onClick={() => setEmailNotifications(!emailNotifications)}
-                  className={cn(
-                    "relative inline-flex h-6.5 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-250 ease-in-out focus:outline-hidden",
-                    emailNotifications ? "bg-[#9c1c1c]" : "bg-zinc-200"
-                  )}
-                >
-                  <span
-                    className={cn(
-                      "pointer-events-none inline-block h-5.5 w-5.5 transform rounded-full bg-white shadow-md ring-0 transition duration-250 ease-in-out",
-                      emailNotifications ? "translate-x-5.5" : "translate-x-0"
-                    )}
-                  />
-                </button>
-              </div>
-
-              {/* Row 2: Push Notifications */}
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="font-bold text-zinc-850 text-sm">Push notifications</p>
-                  <p className="text-xs text-zinc-400">Browser alerts</p>
-                </div>
-                {/* Switch button */}
-                <button
-                  type="button"
-                  onClick={() => setPushNotifications(!pushNotifications)}
-                  className={cn(
-                    "relative inline-flex h-6.5 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-250 ease-in-out focus:outline-hidden",
-                    pushNotifications ? "bg-[#9c1c1c]" : "bg-zinc-200"
-                  )}
-                >
-                  <span
-                    className={cn(
-                      "pointer-events-none inline-block h-5.5 w-5.5 transform rounded-full bg-white shadow-md ring-0 transition duration-250 ease-in-out",
-                      pushNotifications ? "translate-x-5.5" : "translate-x-0"
-                    )}
-                  />
-                </button>
-              </div>
-            </div>
-          </Card>
 
           {/* Card: This Month (Activity snap) */}
           <Card className="border-zinc-200/60 shadow-xs rounded-2xl bg-white overflow-hidden">
@@ -639,54 +574,6 @@ export default function MyProfilePage() {
               </div>
             </div>
           </Card>
-
-          {/* Card: Last Login */}
-          <Card className="border-zinc-200/60 shadow-xs rounded-2xl bg-white overflow-hidden">
-            {/* Header */}
-            <div className="p-6 pb-4 border-b border-zinc-100 flex items-center gap-3">
-              <div className="h-9 w-9 rounded-xl bg-zinc-50 border border-zinc-100 flex items-center justify-center">
-                <Clock className="h-4.5 w-4.5 text-zinc-500" />
-              </div>
-              <div>
-                <h3 className="font-bold text-zinc-900 text-sm">Last Login</h3>
-                <p className="text-xs text-zinc-500">Sign-in details</p>
-              </div>
-            </div>
-
-            {/* List */}
-            <div className="p-6 divide-y divide-zinc-100 text-xs">
-              {/* Item 1: Time */}
-              <div className="py-3.5 first:pt-0 last:pb-0 flex items-center justify-between gap-2">
-                <span className="font-semibold text-zinc-400 text-[11px]">Time</span>
-                <span className="font-bold text-zinc-700">Today, 5:12 PM</span>
-              </div>
-
-              {/* Item 2: IP Address */}
-              <div className="py-3.5 flex items-center justify-between gap-2">
-                <span className="font-semibold text-zinc-400 text-[11px]">IP Address</span>
-                <span className="font-bold text-zinc-700">98.245.167.22</span>
-              </div>
-
-              {/* Item 3: Browser */}
-              <div className="py-3.5 flex items-center justify-between gap-2">
-                <span className="font-semibold text-zinc-400 text-[11px]">Browser</span>
-                <span className="font-bold text-zinc-700">{clientMeta.browser}</span>
-              </div>
-
-              {/* Item 4: OS */}
-              <div className="py-3.5 flex items-center justify-between gap-2">
-                <span className="font-semibold text-zinc-400 text-[11px]">OS</span>
-                <span className="font-bold text-zinc-700">{clientMeta.os}</span>
-              </div>
-
-              {/* Item 5: Location */}
-              <div className="py-3.5 last:pb-0 flex items-center justify-between gap-2">
-                <span className="font-semibold text-zinc-400 text-[11px]">Location</span>
-                <span className="font-bold text-zinc-700">New York, NY</span>
-              </div>
-            </div>
-          </Card>
-
         </div>
       </div>
 
