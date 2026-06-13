@@ -46,10 +46,20 @@ export default function Topbar({ onOpenSidebar }: TopbarProps) {
     "/my-profile": { title: "My Profile", section: "Dashboard" },
   };
 
-  const current = pageMap[pathname] ?? {
-    title: "Dashboard",
-    section: "Dashboard",
+  const getPageInfo = (path: string) => {
+    if (pageMap[path]) return pageMap[path];
+    
+    // Sort keys by length descending to match the most specific prefix first
+    const keys = Object.keys(pageMap).filter(key => key !== "/").sort((a, b) => b.length - a.length);
+    for (const key of keys) {
+      if (path.startsWith(key + "/")) {
+        return pageMap[key];
+      }
+    }
+    return pageMap["/"];
   };
+
+  const current = getPageInfo(pathname);
 
   // Only derive initials on the client to avoid server/client mismatch
   const initials = mounted

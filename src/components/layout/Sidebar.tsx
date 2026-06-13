@@ -128,14 +128,20 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
 
           {/* Navigation Items */}
           <nav className="space-y-1.5 px-4 pt-6">
-            {navigation.map((item) => (
-              <NavItemComponent
-                key={item.name}
-                item={item}
-                active={pathname === item.href}
-                onClose={onClose}
-              />
-            ))}
+            {navigation.map((item) => {
+              const isActive =
+                item.href === "/"
+                  ? pathname === "/"
+                  : pathname === item.href || pathname.startsWith(item.href + "/");
+              return (
+                <NavItemComponent
+                  key={item.name}
+                  item={item}
+                  active={isActive}
+                  onClose={onClose}
+                />
+              );
+            })}
           </nav>
         </div>
 
