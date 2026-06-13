@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, ChevronDown, LogOut, Menu, Settings, User } from "lucide-react";
+import { ChevronDown, LogOut, Menu, Settings, User } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -79,17 +79,17 @@ export default function Topbar({ onOpenSidebar }: TopbarProps) {
   };
 
   return (
-    <header className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-amber-100/70 bg-white/85 px-6 py-2 shadow-sm backdrop-blur">
+    <header className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border bg-white/85 px-6 py-2 shadow-sm backdrop-blur">
       <div className="flex min-w-0 items-center gap-3">
         <button
-          className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-amber-100 bg-white text-amber-700 shadow-sm lg:hidden"
+          className="inline-flex h-9 w-9 items-center justify-center rounded-full border  bg-white text-amber-700 shadow-sm lg:hidden"
           onClick={onOpenSidebar}
           aria-label="Open sidebar"
         >
           <Menu className="h-4 w-4" />
         </button>
         <div className="min-w-0">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-500/70">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#a31d1d]">
             {current.section} / {current.title}
           </p>
           <h2 className="text-xl font-semibold text-zinc-900">
@@ -101,7 +101,7 @@ export default function Topbar({ onOpenSidebar }: TopbarProps) {
       <div className="flex items-center gap-3">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="flex items-center gap-3 rounded-full border border-amber-100 bg-white px-3 py-2 text-left shadow-sm">
+            <button className="flex items-center gap-3 rounded-full border bg-white px-3 py-2 text-left shadow-sm">
               <Avatar className="h-8 w-8">
                 {mounted && getAvatarUrl() && (
                   <AvatarImage
