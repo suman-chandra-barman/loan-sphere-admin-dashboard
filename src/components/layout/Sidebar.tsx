@@ -102,16 +102,21 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             style={{ borderColor: "rgba(255, 255, 255, 0.08)" }}
           >
             <Image
-              src="/logo.png"
+              src="/logo.svg"
               alt="Loan Sphere"
               width={36}
               height={36}
               style={{ height: "auto" }}
               priority
             />
-            <span className="text-xl font-semibold text-white tracking-wide">
-              Loan Sphere
-            </span>
+            <div>
+              <h2 className="text-xl font-semibold text-white tracking-wide">
+                Loan Sphere
+              </h2>
+              <p className="text-xs text-white tracking-wide">
+                Admin Console
+              </p>
+            </div>
             <button
               className="ml-auto inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-300 hover:text-white lg:hidden"
               onClick={onClose}

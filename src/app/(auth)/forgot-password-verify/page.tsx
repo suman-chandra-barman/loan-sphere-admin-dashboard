@@ -93,7 +93,7 @@ export default function ForgotPasswordVerifyPage() {
       <div className="bg-white rounded-lg shadow-md w-full max-w-md p-8">
         <div className="flex flex-col items-center mb-6">
           <Image
-            src="/logo.png"
+            src="/logo.svg"
             alt="Mamamind"
             width={80}
             height={80}

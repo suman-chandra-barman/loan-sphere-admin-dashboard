@@ -56,7 +56,7 @@ export default function SignInPage() {
       <div className="bg-white rounded-lg shadow-md w-full max-w-md p-8">
         <div className="flex flex-col items-center mb-6 border-b border-gray-300 pb-6">
           <Image
-            src="/logo.png"
+            src="/logo.svg"
             alt="Mamamind Logo"
             width={80}
             height={80}
