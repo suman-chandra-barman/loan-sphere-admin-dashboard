@@ -355,7 +355,7 @@ export default function MyProfilePage() {
               <Button
                 variant="ghost"
                 onClick={handleCancelProfile}
-                className="text-zinc-400 hover:text-white ml-2 text-xs font-semibold cursor-pointer"
+                className="text-zinc-400 ml-2 text-xs font-semibold cursor-pointer"
               >
                 Cancel
               </Button>
