@@ -92,9 +92,6 @@ export default function Topbar({ onOpenSidebar }: TopbarProps) {
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#a31d1d]">
             {current.section} / {current.title}
           </p>
-          <h2 className="text-xl font-semibold text-zinc-900">
-            {current.title}
-          </h2>
         </div>
       </div>
 
