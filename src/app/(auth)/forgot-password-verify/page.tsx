@@ -5,7 +5,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
-import Image from "next/image";
+import Link from "next/link";
+import { ArrowLeft, ArrowRight, RefreshCw, Smartphone } from "lucide-react";
 import { useVerifyForgotPasswordOtpMutation } from "@/redux/api/authApi";
 import { useAppDispatch } from "@/redux/hooks";
 import { setCredentials } from "@/redux/slices/authSlice";
@@ -34,6 +35,13 @@ export default function ForgotPasswordVerifyPage() {
         const next = document.getElementById(`otp-${index + 1}`);
         if (next) (next as HTMLInputElement).focus();
       }
+    }
+  };
+
+  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
+      const prev = document.getElementById(`otp-${index - 1}`);
+      if (prev) (prev as HTMLInputElement).focus();
     }
   };
 
@@ -89,29 +97,38 @@ export default function ForgotPasswordVerifyPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#E9EFF3] bg-opacity-80">
-      <div className="bg-white rounded-lg shadow-md w-full max-w-md p-8">
-        <div className="flex flex-col items-center mb-6">
-          <Image
-            src="/logo.svg"
-            alt="Mamamind"
-            width={80}
-            height={80}
-            className="object-cover mb-2"
-          />
-          <h1 className="text-2xl font-bold text-center text-button-bg">
-            Mamamind
-          </h1>
-        </div>
-        <h2 className="text-lg font-bold text-button-bg mb-1">Verify OTP</h2>
-        <p className="text-gray-700 mb-4 text-sm">
-          Enter the 6-digit code sent to your email.
-        </p>
-        <form
-          className="flex flex-col gap-3 items-center"
-          onSubmit={handleSubmit}
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#F5F0EB] px-4">
+      {/* Back link */}
+      <div className="w-full max-w-[400px] mb-4">
+        <Link
+          href="/forgot-password"
+          className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition-colors"
         >
-          <div className="flex gap-2 mb-2">
+          <ArrowLeft size={15} />
+          Back
+        </Link>
+      </div>
+
+      {/* Card */}
+      <div className="bg-white rounded-2xl shadow-lg px-8 py-10 w-full max-w-[400px]">
+        {/* Icon badge */}
+        <div className="flex justify-center mb-6">
+          <div className="w-14 h-14 rounded-2xl bg-gray-100 flex items-center justify-center">
+            <Smartphone size={26} className="text-gray-600" />
+          </div>
+        </div>
+
+        <div className="text-center mb-7">
+          <h1 className="text-2xl font-bold text-gray-900">Verification Code</h1>
+          <p className="text-gray-500 text-sm mt-2">
+            We sent a 6-digit code to{" "}
+            <span className="font-semibold text-gray-700">{email || "your email"}</span>
+          </p>
+        </div>
+
+        <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
+          {/* OTP inputs */}
+          <div className="flex gap-2 justify-center">
             {otp.map((digit, idx) => (
               <input
                 key={idx}
@@ -119,24 +136,53 @@ export default function ForgotPasswordVerifyPage() {
                 type="text"
                 inputMode="numeric"
                 maxLength={1}
-                className="w-12 h-12 text-center border rounded text-xl"
                 value={digit}
                 onChange={(e) => handleChange(idx, e.target.value)}
+                onKeyDown={(e) => handleKeyDown(idx, e)}
                 onPaste={(e) => {
                   e.preventDefault();
                   handlePaste(idx, e.clipboardData.getData("text"));
                 }}
+                className="w-11 h-12 text-center text-lg font-semibold border-2 rounded-xl text-gray-800 bg-[#FAFAF9] focus:outline-none focus:border-[#C0392B] focus:ring-2 focus:ring-[#C0392B]/10 transition-all"
+                style={{
+                  borderColor: digit ? "#C0392B" : undefined,
+                }}
               />
             ))}
           </div>
+
+          {/* Resend */}
+          <div className="flex justify-center">
+            <button
+              type="button"
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#C0392B] hover:underline transition-colors"
+            >
+              <RefreshCw size={13} />
+              Resend Code
+            </button>
+          </div>
+
+          {/* Submit */}
           <button
             type="submit"
-            className="h-10 w-full rounded-full bg-button-bg text-[15px] font-medium text-white hover:bg-[#9f8046] cursor-pointer"
             disabled={isLoading}
+            className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-[#C0392B] hover:bg-[#a93226] active:scale-[0.98] text-white text-sm font-semibold transition-all disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
           >
-            {isLoading ? "Verifying..." : "Verify"}
+            {isLoading ? "Verifying…" : (
+              <>
+                Verify Code <ArrowRight size={16} />
+              </>
+            )}
           </button>
         </form>
+
+        <p className="text-center text-xs text-gray-400 mt-5">
+          Didn&apos;t get the code? Check your spam folder or{" "}
+          <Link href="/forgot-password" className="text-[#C0392B] hover:underline font-medium">
+            try again
+          </Link>
+          .
+        </p>
       </div>
     </div>
   );
