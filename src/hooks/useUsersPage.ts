@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useGetAdminUsersQuery } from "@/redux/features/users/usersApi";
 import { useAppSelector } from "@/redux/hooks";
 import { selectCurrentToken } from "@/redux/slices/authSlice";
 import { type FiltersState } from "@/components/users/UsersFilters";
+import { ListUsersParams } from "@/types/adminUser";
 
 export function useUsersPage() {
   const token = useAppSelector(selectCurrentToken);
@@ -20,15 +21,19 @@ export function useUsersPage() {
     setPage(1);
   }
 
+  const queryParams: ListUsersParams = useMemo(() => {
+    return {
+      page,
+      limit: 10,
+      search: filters.search || undefined,
+      status: ["active", "suspended"].includes(filters.status) ? filters.status : undefined,
+      role: ["admin", "customer"].includes(filters.status) ? filters.status : undefined,
+    };
+  }, [filters, page]);
+
   const { data, isLoading, isFetching, isError, refetch } =
     useGetAdminUsersQuery(
-      {
-        search: filters.search || undefined,
-        plan: filters.plan !== "all" ? filters.plan : undefined,
-        status: filters.status !== "all" ? filters.status : undefined,
-        page,
-        page_size: 10,
-      },
+      queryParams,
       { skip: !token },
     );
 

@@ -66,7 +66,9 @@ export default function UsersFilters({ filters, onChange }: UsersFiltersProps) {
         >
           <option value="all">All Status</option>
           <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
+          <option value="suspended">Suspended</option>
+          <option value="admin">Admin</option>
+          <option value="customer">Customer</option>
         </select>
       </div>
     </div>

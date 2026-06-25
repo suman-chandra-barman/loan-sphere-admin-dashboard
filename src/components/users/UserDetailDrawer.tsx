@@ -190,7 +190,8 @@ export default function UserDetailDrawer({
         </div>
 
         {/* Footer Actions */}
-        <div className="p-6 border-t border-zinc-100 bg-zinc-50/30 flex items-center gap-3">
+        
+        {/* <div className="p-6 border-t border-zinc-100 bg-zinc-50/30 flex items-center gap-3">
           <Button
             type="button"
             variant="outline"
@@ -209,15 +210,7 @@ export default function UserDetailDrawer({
               </>
             )}
           </Button>
-
-          <Button
-            type="button"
-            className="flex-1 bg-[#A31D1D] hover:bg-[#8B1818] text-white h-11 rounded-xl font-bold flex items-center justify-center gap-2 cursor-pointer shadow-xs transition-colors"
-          >
-            <Activity className="h-4 w-4" />
-            View Activity
-          </Button>
-        </div>
+        </div> */}
       </aside>
     </>
   );
