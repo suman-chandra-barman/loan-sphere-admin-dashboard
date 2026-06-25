@@ -70,7 +70,25 @@ export const authApi = baseApi.injectEndpoints({
         try {
           const { data } = await queryFulfilled;
           if (data.success) {
-            dispatch(updateUser(data.data.user));
+            dispatch(updateUser(data.data));
+          }
+        } catch {
+          // silently ignore
+        }
+      },
+    }),
+    updateMe: builder.mutation({
+      query: (formData) => ({
+        url: "/auth/me/",
+        method: "PATCH",
+        body: formData,
+      }),
+      invalidatesTags: ["User"],
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          if (data.success) {
+            dispatch(updateUser(data.data));
           }
         } catch {
           // silently ignore
@@ -157,6 +175,7 @@ export const {
   useResetPasswordMutation,
   useChangePasswordMutation,
   useGetMeQuery,
+  useUpdateMeMutation,
   useGetUserAccountSettingsQuery,
   useUpdateUserAccountMutation,
   useGetProfileQuery,

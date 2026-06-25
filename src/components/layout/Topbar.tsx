@@ -72,6 +72,11 @@ export default function Topbar({ onOpenSidebar }: TopbarProps) {
 
   const getAvatarUrl = () => {
     if (!user?.profile_image) return "";
+    const mediaIndex = user.profile_image.indexOf("/media/");
+    if (mediaIndex !== -1) {
+      const relativePath = user.profile_image.substring(mediaIndex);
+      return `${process.env.NEXT_PUBLIC_BASE_URL}${relativePath}`;
+    }
     if (user.profile_image.startsWith("http://") || user.profile_image.startsWith("https://")) {
       return user.profile_image;
     }
