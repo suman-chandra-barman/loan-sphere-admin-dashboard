@@ -1,42 +1,42 @@
 "use client";
 
+import React from "react";
 import { Sparkles } from "lucide-react";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import Link from "next/link";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { SectionCard } from "@/components/ui/section-card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import type { RecentAiReportItem } from "@/types/aiInsights";
 
-const REPORTS = [
-  {
-    application: "LS-2024-001",
-    customer: "Sarah Johnson",
-    score: 78,
-    recommendation: "Approve",
-    summary: "Sarah Johnson presents a low-risk profile for this $350,000 home loan, backed by strong credit.",
-    date: "Jan 23, 2024",
-  },
-  {
-    application: "LS-2024-006",
-    customer: "Lisa Park",
-    score: 38,
-    recommendation: "Reject",
-    summary: "Lisa Park presents high risk due to excessive debt burden. Debt-to-income ratio exceeds acceptable threshold.",
-    date: "Feb 18, 2024",
-  },
-  {
-    application: "LS-2024-011",
-    customer: "James Thompson",
-    score: 82,
-    recommendation: "Approve",
-    summary: "James Thompson's consulting firm shows strong financial health and stable recurring cash flow.",
-    date: "Mar 1, 2024",
-  },
-];
+interface RecentAiReportsProps {
+  title?: string;
+  items?: RecentAiReportItem[];
+}
 
-export default function RecentAiReports() {
+const BADGE_MAP: Record<string, string> = {
+  green: "bg-emerald-50 text-emerald-700 border-emerald-100/80 hover:bg-emerald-50",
+  yellow: "bg-amber-50 text-amber-700 border-amber-100/80 hover:bg-amber-50",
+  red: "bg-rose-50 text-rose-700 border-rose-100/80 hover:bg-rose-50",
+  approve: "bg-emerald-50 text-emerald-700 border-emerald-100/80 hover:bg-emerald-50",
+  review: "bg-amber-50 text-amber-700 border-amber-100/80 hover:bg-amber-50",
+  reject: "bg-rose-50 text-rose-700 border-rose-100/80 hover:bg-rose-50",
+};
+
+export default function RecentAiReports({
+  title = "Recent AI Reports",
+  items = [],
+}: RecentAiReportsProps) {
   return (
     <SectionCard
-      title="Recent AI Reports"
+      title={title}
       icon={Sparkles}
       className="w-full overflow-hidden"
     >
@@ -65,47 +65,76 @@ export default function RecentAiReports() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {REPORTS.map((report, idx) => (
-              <TableRow
-                key={idx}
-                className="group border-b border-zinc-100 last:border-0 hover:bg-zinc-50/35 transition-colors duration-200"
-              >
-                <TableCell className="px-6 py-4.5 font-bold text-[#9c1c1c]">
-                  {report.application}
-                </TableCell>
-                <TableCell className="px-6 py-4.5 text-zinc-700 font-medium">
-                  {report.customer}
-                </TableCell>
-                <TableCell className="px-6 py-4.5">
-                  <div className="flex items-center gap-3">
-                    <div className="h-1.5 w-16 rounded-full bg-zinc-100 overflow-hidden">
-                      <div
-                        className={cn(
-                          "h-full rounded-full transition-all duration-500",
-                          report.score >= 50 ? "bg-emerald-500" : "bg-rose-500"
-                        )}
-                        style={{ width: `${report.score}%` }}
-                      />
-                    </div>
-                    <span className="font-bold text-zinc-800 text-xs">{report.score}</span>
-                  </div>
-                </TableCell>
-                <TableCell className="px-6 py-4.5">
-                  <Badge
-                    variant={report.recommendation === "Approve" ? "default" : "destructive"}
-                    className="font-semibold px-2.5 py-0.5 rounded-md text-[11px]"
-                  >
-                    {report.recommendation}
-                  </Badge>
-                </TableCell>
-                <TableCell className="px-6 py-4.5 text-zinc-500 font-medium text-xs max-w-xs truncate md:max-w-md lg:max-w-lg">
-                  {report.summary}
-                </TableCell>
-                <TableCell className="px-6 py-4.5 text-zinc-400 font-medium text-xs">
-                  {report.date}
-                </TableCell>
+            {items.length === 0 ? (
+              <TableRow>
+                <td colSpan={6} className="px-6 py-8 text-center text-sm text-zinc-400">
+                  No recent AI reports available.
+                </td>
               </TableRow>
-            ))}
+            ) : (
+              items.map((report, idx) => {
+                const badgeClass =
+                  BADGE_MAP[report.recommendationBadgeType] ||
+                  BADGE_MAP[report.recommendation] ||
+                  "bg-zinc-100 text-zinc-700 border-zinc-200 hover:bg-zinc-100";
+
+                return (
+                  <TableRow
+                    key={report.id || idx}
+                    className="group border-b border-zinc-100 last:border-0 hover:bg-zinc-50/35 transition-colors duration-200"
+                  >
+                    <TableCell className="px-6 py-4.5 font-bold text-[#9c1c1c]">
+                      <Link
+                        href={`/applications/${report.id}`}
+                        className="hover:underline"
+                      >
+                        {report.applicationNumber}
+                      </Link>
+                    </TableCell>
+                    <TableCell className="px-6 py-4.5 text-zinc-700 font-medium">
+                      {report.customerName}
+                    </TableCell>
+                    <TableCell className="px-6 py-4.5">
+                      <div className="flex items-center gap-3">
+                        <div className="h-1.5 w-16 rounded-full bg-zinc-100 overflow-hidden">
+                          <div
+                            className={cn(
+                              "h-full rounded-full transition-all duration-500",
+                              report.riskScore <= 40
+                                ? "bg-emerald-500"
+                                : report.riskScore <= 70
+                                ? "bg-amber-500"
+                                : "bg-rose-500"
+                            )}
+                            style={{ width: `${report.riskScore}%` }}
+                          />
+                        </div>
+                        <span className="font-bold text-zinc-800 text-xs">
+                          {report.riskScore}
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="px-6 py-4.5">
+                      <Badge
+                        variant="secondary"
+                        className={cn(
+                          "font-semibold px-2.5 py-0.5 rounded-md text-[11px]",
+                          badgeClass
+                        )}
+                      >
+                        {report.recommendationLabel}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="px-6 py-4.5 text-zinc-500 font-medium text-xs max-w-xs truncate md:max-w-md lg:max-w-lg">
+                      {report.summary}
+                    </TableCell>
+                    <TableCell className="px-6 py-4.5 text-zinc-400 font-medium text-xs">
+                      {report.dateDisplay}
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            )}
           </TableBody>
         </Table>
       </div>

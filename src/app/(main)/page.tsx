@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import ErrorState from "@/components/ui/ErrorState";
 import { ClipboardCheck, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { useGetDashboardDataQuery } from "@/redux/api/dashboardApi";
@@ -32,23 +33,11 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="flex flex-col items-center justify-center p-8 bg-white border border-zinc-200/60 shadow-sm rounded-2xl min-h-[350px] text-center space-y-4">
-          <div className="w-12 h-12 rounded-full bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-500">
-            <RefreshCw className="h-6 w-6" />
-          </div>
-          <div className="space-y-2">
-            <h3 className="text-base font-bold text-zinc-900">Error Loading Dashboard</h3>
-            <p className="text-sm text-zinc-500 max-w-md mx-auto">
-              We encountered a problem fetching the dashboard analytics. Please verify your connection or session and try again.
-            </p>
-          </div>
-          <button
-            onClick={() => refetch()}
-            className="inline-flex items-center gap-2 rounded-xl bg-indigo-900 hover:bg-indigo-950 px-4 py-2.5 text-xs font-bold text-white shadow-sm hover:shadow transition-all active:scale-95 cursor-pointer mt-2"
-          >
-            <span>Retry Fetching</span>
-          </button>
-        </div>
+        <ErrorState
+          title="Error Loading Dashboard"
+          description="We encountered a problem fetching the dashboard analytics. Please verify your connection or session and try again."
+          onRetry={refetch}
+        />
       </div>
     );
   }

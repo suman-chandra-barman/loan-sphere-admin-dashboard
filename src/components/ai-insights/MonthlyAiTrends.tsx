@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { TrendingUp } from "lucide-react";
 import {
   LineChart,
@@ -11,20 +12,28 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { SectionCard } from "@/components/ui/section-card";
+import type { MonthlyAssessmentTrendItem } from "@/types/aiInsights";
 
-const DATA = [
-  { month: "Oct", approve: 8, review: 5, reject: 2 },
-  { month: "Nov", approve: 7, review: 4, reject: 1 },
-  { month: "Dec", approve: 12, review: 8, reject: 3 },
-  { month: "Jan", approve: 18, review: 10, reject: 4 },
-  { month: "Feb", approve: 15, review: 9, reject: 3 },
-  { month: "Mar", approve: 22, review: 12, reject: 5 },
-];
+interface MonthlyAiTrendsProps {
+  title?: string;
+  subtitle?: string;
+  items?: MonthlyAssessmentTrendItem[];
+}
 
-export default function MonthlyAiTrends() {
+export default function MonthlyAiTrends({
+  title = "Monthly AI Assessment Trends",
+  items = [],
+}: MonthlyAiTrendsProps) {
+  // Find max value in lines to set YAxis domain boundary
+  const maxVal = Math.max(
+    ...items.map((i) => Math.max(i.approve, i.review, i.reject)),
+    5
+  );
+  const yAxisMax = Math.ceil(maxVal * 1.15);
+
   return (
     <SectionCard
-      title="Monthly AI Assessment Trends"
+      title={title}
       icon={TrendingUp}
       className="w-full"
     >
@@ -33,7 +42,7 @@ export default function MonthlyAiTrends() {
         <div className="h-[240px] w-full text-xs">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
-              data={DATA}
+              data={items}
               margin={{ top: 10, right: 15, left: -20, bottom: 0 }}
             >
               <CartesianGrid
@@ -52,8 +61,8 @@ export default function MonthlyAiTrends() {
                 axisLine={false}
                 tickLine={false}
                 tick={{ fill: "#a1a1aa", fontSize: 11 }}
-                domain={[0, 24]}
-                ticks={[0, 6, 12, 18, 24]}
+                domain={[0, yAxisMax]}
+                allowDecimals={false}
                 dx={-4}
               />
               <Tooltip
@@ -62,7 +71,7 @@ export default function MonthlyAiTrends() {
                     return (
                       <div className="rounded-xl border border-zinc-100 bg-white p-3 shadow-lg space-y-1">
                         <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
-                          {payload[0].payload.month}
+                          {payload[0].payload.label || payload[0].payload.month}
                         </p>
                         {payload.map((p, idx) => (
                           <div key={idx} className="flex items-center gap-2 text-xs font-medium">

@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import {
   BarChart,
   Bar,
@@ -11,23 +12,35 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { SectionCard } from "@/components/ui/section-card";
+import type { EmploymentTypeDistributionItem } from "@/types/aiInsights";
 
-const DATA = [
-  { name: "Full-time", value: 58, color: "#3b82f6" },
-  { name: "Self-employed", value: 22, color: "#8b5cf6" },
-  { name: "Part-time", value: 12, color: "#10b981" },
-  { name: "Contract", value: 8, color: "#f59e0b" },
-];
+interface EmploymentTypeDistributionProps {
+  title?: string;
+  items?: EmploymentTypeDistributionItem[];
+}
 
-export default function EmploymentTypeDistribution() {
+const COLORS = ["#3b82f6", "#8b5cf6", "#10b981", "#f59e0b", "#06b6d4", "#ef4444"];
+
+export default function EmploymentTypeDistribution({
+  title = "Employment Type Distribution",
+  items = [],
+}: EmploymentTypeDistributionProps) {
+  // Map data with colors
+  const chartData = items.map((item, idx) => ({
+    name: item.label,
+    value: item.value,
+    percentDisplay: item.percentDisplay,
+    color: COLORS[idx % COLORS.length],
+  }));
+
   return (
-    <SectionCard title="Employment Type Distribution" className="w-full">
+    <SectionCard title={title} className="w-full">
       <div className="flex flex-col gap-6">
         {/* Horizontal Bar Chart */}
         <div className="h-[190px] w-full text-xs">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
-              data={DATA}
+              data={chartData}
               layout="vertical"
               margin={{ top: 5, right: 15, left: 10, bottom: 5 }}
               barSize={16}
@@ -66,7 +79,7 @@ export default function EmploymentTypeDistribution() {
                           {item.name}
                         </p>
                         <p className="mt-1 text-sm font-bold text-zinc-900">
-                          {item.value}% of portfolio
+                          {item.percentDisplay} of portfolio
                         </p>
                       </div>
                     );
@@ -75,7 +88,7 @@ export default function EmploymentTypeDistribution() {
                 }}
               />
               <Bar dataKey="value" radius={[0, 4, 4, 0]}>
-                {DATA.map((entry, index) => (
+                {chartData.map((entry, index) => (
                   <Cell
                     key={`cell-${index}`}
                     fill={entry.color}
@@ -89,7 +102,7 @@ export default function EmploymentTypeDistribution() {
 
         {/* Breakdown details (2x2 Grid) */}
         <div className="grid grid-cols-2 gap-x-6 gap-y-3 border-t border-zinc-100 pt-5">
-          {DATA.map((item, idx) => (
+          {chartData.map((item, idx) => (
             <div key={idx} className="flex items-center justify-between text-xs">
               <div className="flex items-center gap-2">
                 <span
@@ -98,7 +111,7 @@ export default function EmploymentTypeDistribution() {
                 />
                 <span className="font-semibold text-zinc-600">{item.name}</span>
               </div>
-              <span className="font-bold text-zinc-900">{item.value}%</span>
+              <span className="font-bold text-zinc-900">{item.percentDisplay}</span>
             </div>
           ))}
         </div>

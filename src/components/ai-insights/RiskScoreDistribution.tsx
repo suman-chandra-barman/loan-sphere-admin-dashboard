@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { Brain } from "lucide-react";
 import {
   BarChart,
@@ -12,26 +13,46 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { SectionCard } from "@/components/ui/section-card";
+import type { RiskScoreDistributionItem } from "@/types/aiInsights";
 
-const DATA = [
-  { name: "Approve", value: 112, color: "#10b981", percent: "45%" },
-  { name: "Review", value: 87, color: "#f59e0b", percent: "35%" },
-  { name: "Reject", value: 48, color: "#ef4444", percent: "20%" },
-];
+interface RiskScoreDistributionProps {
+  title?: string;
+  items?: RiskScoreDistributionItem[];
+}
 
-export default function RiskScoreDistribution() {
+const COLOR_MAP: Record<string, string> = {
+  green: "#10b981",
+  yellow: "#f59e0b",
+  red: "#ef4444",
+  approve: "#10b981",
+  review: "#f59e0b",
+  reject: "#ef4444",
+};
+
+export default function RiskScoreDistribution({
+  title = "Risk Score Distribution",
+  items = [],
+}: RiskScoreDistributionProps) {
+  // Map data to structure recharts expects
+  const chartData = items.map((item) => ({
+    name: item.label,
+    value: item.value,
+    percent: item.percentDisplay,
+    color: COLOR_MAP[item.badgeType] || COLOR_MAP[item.key] || "#cbd5e1",
+  }));
+
+  // Find max value to adjust YAxis dynamically
+  const maxCount = Math.max(...items.map((i) => i.value), 5);
+  const yAxisMax = Math.ceil(maxCount * 1.15); // Add margin
+
   return (
-    <SectionCard
-      title="Risk Score Distribution"
-      icon={Brain}
-      className="w-full"
-    >
+    <SectionCard title={title} icon={Brain} className="w-full">
       <div className="flex flex-col gap-6">
         {/* Bar Chart */}
         <div className="h-[240px] w-full text-xs">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
-              data={DATA}
+              data={chartData}
               margin={{ top: 10, right: 15, left: -20, bottom: 0 }}
               barSize={40}
             >
@@ -51,8 +72,8 @@ export default function RiskScoreDistribution() {
                 axisLine={false}
                 tickLine={false}
                 tick={{ fill: "#a1a1aa", fontSize: 11 }}
-                domain={[0, 120]}
-                ticks={[0, 30, 60, 90, 120]}
+                domain={[0, yAxisMax]}
+                allowDecimals={false}
                 dx={-4}
               />
               <Tooltip
@@ -75,7 +96,7 @@ export default function RiskScoreDistribution() {
                 }}
               />
               <Bar dataKey="value" radius={[6, 6, 0, 0]}>
-                {DATA.map((entry, index) => (
+                {chartData.map((entry, index) => (
                   <Cell
                     key={`cell-${index}`}
                     fill={entry.color}
@@ -89,7 +110,7 @@ export default function RiskScoreDistribution() {
 
         {/* Details section */}
         <div className="grid grid-cols-3 gap-4 border-t border-zinc-100 pt-5 text-center">
-          {DATA.map((item, idx) => (
+          {chartData.map((item, idx) => (
             <div key={idx} className="space-y-1">
               <p className="text-2xl font-bold text-zinc-900">{item.value}</p>
               <p className="text-xs font-medium text-zinc-400">
