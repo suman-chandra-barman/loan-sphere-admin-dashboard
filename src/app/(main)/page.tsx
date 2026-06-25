@@ -84,7 +84,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Info Cards Grid: Status Overview, Quick Actions & Approval Rate */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <StatusOverviewCard data={dashboardData?.statusOverview} isLoading={isLoading} />
         <QuickActionsCard data={dashboardData?.quickActions} isLoading={isLoading} />
         <ApprovalRateCard data={dashboardData?.approvalRate} isLoading={isLoading} />

@@ -62,14 +62,13 @@ export default function LoanTypeDistribution({
 
         {/* Donut Chart */}
         <div className="sm:col-span-6 relative flex h-[190px] w-full items-center justify-center">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
+            <PieChart width={160} height={160}>
               <Pie
                 data={chartData}
-                cx="50%"
-                cy="50%"
-                innerRadius={52}
-                outerRadius={72}
+                cx={80}
+                cy={80}
+                innerRadius={45}
+                outerRadius={65}
                 paddingAngle={chartData.length > 1 ? 3 : 0}
                 dataKey="value"
               >
@@ -101,7 +100,6 @@ export default function LoanTypeDistribution({
                 }}
               />
             </PieChart>
-          </ResponsiveContainer>
           {/* Center Text */}
           <div className="absolute flex flex-col items-center justify-center">
             <span className="text-xl font-bold text-zinc-800">{totalPercent || 0}%</span>

@@ -33,8 +33,8 @@ export default function LoanTypeDistributionChart({
           <Skeleton className="h-5 w-44 rounded-md" />
           <Skeleton className="h-3.5 w-28 mt-1.5 rounded-md" />
         </CardHeader>
-        <CardContent className="flex-1 px-6 pb-6 pt-2">
-          <div className="grid grid-cols-1 items-center gap-6 sm:grid-cols-2">
+        <CardContent className="flex-1 px-4 sm:px-6 pb-4 sm:pb-6 pt-2">
+          <div className="grid grid-cols-1 items-center gap-3 sm:gap-6 sm:grid-cols-2">
             <div className="space-y-3">
               {Array.from({ length: 4 }).map((_, idx) => (
                 <div key={idx} className="flex items-center justify-between">
@@ -47,10 +47,10 @@ export default function LoanTypeDistributionChart({
               ))}
             </div>
             <div className="relative flex h-[190px] w-full items-center justify-center">
-              <Skeleton className="h-[140px] w-[140px] rounded-full" />
-              <div className="absolute h-[100px] w-[100px] rounded-full bg-white flex flex-col items-center justify-center space-y-1">
-                <Skeleton className="h-5 w-10 rounded-md" />
-                <Skeleton className="h-3 w-8 rounded-md" />
+              <Skeleton className="h-[120px] w-[120px] rounded-full" />
+              <div className="absolute h-[80px] w-[80px] rounded-full bg-white flex flex-col items-center justify-center space-y-1">
+                <Skeleton className="h-4 w-10 rounded-md" />
+                <Skeleton className="h-2.5 w-8 rounded-md" />
               </div>
             </div>
           </div>
@@ -81,8 +81,8 @@ export default function LoanTypeDistributionChart({
           {data?.subtitle || "Portfolio breakdown"}
         </CardDescription>
       </CardHeader>
-      <CardContent className="flex-1 px-6 pb-6 pt-2">
-        <div className="grid grid-cols-1 items-center gap-6 sm:grid-cols-2">
+      <CardContent className="flex-1 px-4 sm:px-6 pb-4 sm:pb-6 pt-2">
+        <div className="grid grid-cols-1 items-center gap-3 sm:gap-6 sm:grid-cols-2">
           {/* Legend Table/List */}
           <div className="space-y-2.5">
             {chartItems.length === 0 ? (
@@ -112,55 +112,53 @@ export default function LoanTypeDistributionChart({
           {/* Donut Chart */}
           <div className="relative flex h-[190px] w-full items-center justify-center">
             {chartItems.length === 0 ? (
-              <div className="h-[140px] w-[140px] rounded-full border border-dashed border-zinc-200 flex items-center justify-center text-xs text-zinc-400">
+              <div className="h-[120px] w-[120px] rounded-full border border-dashed border-zinc-200 flex items-center justify-center text-xs text-zinc-400">
                 No chart
               </div>
             ) : (
               <>
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={chartItems}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={55}
-                      outerRadius={75}
-                      paddingAngle={3}
-                      dataKey="value"
-                    >
-                      {chartItems.map((entry, index) => (
-                        <Cell
-                          key={`cell-${index}`}
-                          fill={entry.color}
-                          stroke="transparent"
-                          className="outline-none transition-all duration-300 hover:opacity-90"
-                        />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      content={({ active, payload }) => {
-                        if (active && payload && payload.length) {
-                          const data = payload[0].payload;
-                          return (
-                            <div className="rounded-xl border border-zinc-100 bg-white p-3 shadow-lg">
-                              <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
-                                {data.name}
-                              </p>
-                              <p className="mt-1 text-sm font-bold text-zinc-900">
-                                {data.value}% ({data.amountDisplay || `${data.count} loans`})
-                              </p>
-                            </div>
-                          );
-                        }
-                        return null;
-                      }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
+                <PieChart width={130} height={130}>
+                  <Pie
+                    data={chartItems}
+                    cx={65}
+                    cy={65}
+                    innerRadius={38}
+                    outerRadius={58}
+                    paddingAngle={3}
+                    dataKey="value"
+                  >
+                    {chartItems.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={entry.color}
+                        stroke="transparent"
+                        className="outline-none transition-all duration-300 hover:opacity-90"
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    content={({ active, payload }) => {
+                      if (active && payload && payload.length) {
+                        const data = payload[0].payload;
+                        return (
+                          <div className="rounded-xl border border-zinc-100 bg-white p-3 shadow-lg">
+                            <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
+                              {data.name}
+                            </p>
+                            <p className="mt-1 text-sm font-bold text-zinc-900">
+                              {data.value}% ({data.amountDisplay || `${data.count} loans`})
+                            </p>
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
+                  />
+                </PieChart>
                 {/* Center Text */}
                 <div className="absolute flex flex-col items-center justify-center pointer-events-none">
-                  <span className="text-xl font-bold text-zinc-800">{displayTotal}</span>
-                  <span className="text-[10px] font-medium text-zinc-400 uppercase tracking-wider">
+                  <span className="text-lg font-bold text-zinc-800">{displayTotal}</span>
+                  <span className="text-[9px] font-medium text-zinc-400 uppercase tracking-wider">
                     Total
                   </span>
                 </div>
