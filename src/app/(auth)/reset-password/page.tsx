@@ -2,7 +2,7 @@
 /** @format */
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import {
@@ -15,7 +15,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { useResetPasswordMutation } from "@/redux/api/authApi";
-import { useAppDispatch } from "@/redux/hooks";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { setCredentials } from "@/redux/slices/authSlice";
 import { validateResetPassword } from "@/schemas/auth";
 
@@ -42,7 +42,15 @@ export default function ResetPasswordPage() {
   const [showConfirm, setShowConfirm] = useState(false);
   const router = useRouter();
   const dispatch = useAppDispatch();
+  const token = useAppSelector((state) => state.auth.token);
   const [resetPassword, { isLoading }] = useResetPasswordMutation();
+
+  useEffect(() => {
+    if (!token) {
+      toast.error("Unauthorized access. Please verify your OTP code first.");
+      router.replace("/forgot-password");
+    }
+  }, [token, router]);
 
   const strength = getStrength(newPassword);
 
@@ -64,14 +72,19 @@ export default function ResetPasswordPage() {
       }).unwrap();
 
       if (response?.success) {
-        dispatch(
-          setCredentials({
-            user: response.data.user,
-            tokens: response.data.tokens,
-          }),
-        );
-        toast.success(response?.message || "Password reset successfully.");
-        router.push("/");
+        if (response.data?.user && response.data?.tokens) {
+          dispatch(
+            setCredentials({
+              user: response.data.user,
+              tokens: response.data.tokens,
+            }),
+          );
+          toast.success(response?.message || "Password reset successfully.");
+          router.push("/");
+        } else {
+          toast.success(response?.message || "Password reset successful. Please sign in.");
+          router.push("/signin");
+        }
         return;
       }
 

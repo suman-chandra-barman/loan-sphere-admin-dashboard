@@ -61,7 +61,7 @@ export const validateVerifyEmail = (payload: VerifyEmailRequest) => {
 export const validateVerifyForgotPasswordOtp = (
   payload: VerifyForgotPasswordOtpRequest,
 ) => {
-  const emailError = validateEmail(payload.email);
+  const emailError = validateEmail(payload.email_address);
   if (emailError) return emailError;
   return validateOtp(payload.otp_code, 6);
 };

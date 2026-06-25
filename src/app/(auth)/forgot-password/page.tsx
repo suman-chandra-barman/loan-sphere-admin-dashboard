@@ -23,7 +23,7 @@ export default function ForgotPasswordPage() {
       return;
     }
     try {
-      const response = await forgotPassword({ email: email.trim() }).unwrap();
+      const response = await forgotPassword({ email_address: email.trim() }).unwrap();
 
       if (response?.success) {
         localStorage.setItem("forgotEmail", email.trim());

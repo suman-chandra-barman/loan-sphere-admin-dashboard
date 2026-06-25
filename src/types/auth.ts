@@ -5,8 +5,10 @@ export interface ApiResponse<T> {
 }
 
 export interface AuthTokens {
-  access: string;
-  refresh: string;
+  access?: string;
+  refresh?: string;
+  accessToken?: string;
+  refreshToken?: string;
 }
 
 export interface AuthFamily {
@@ -18,18 +20,22 @@ export interface AuthFamily {
 
 export interface AuthUser {
   id?: number;
+  user_id?: string;
   full_name?: string;
-  email: string;
+  email?: string;
+  email_address?: string;
   whatsapp_number?: string;
+  phone_number?: string | null;
   role?: string;
   is_email_verified?: boolean;
+  is_admin?: boolean;
   profile_image?: string | null;
   account_type?: string;
   family?: AuthFamily;
 }
 
 export interface LoginRequest {
-  email: string;
+  email_address: string;
   password: string;
 }
 
@@ -41,23 +47,26 @@ export interface LoginResponseData {
 export type LoginResponse = ApiResponse<LoginResponseData>;
 
 export interface ForgotPasswordRequest {
-  email: string;
+  email_address: string;
 }
 
 export interface ForgotPasswordResponseData {
-  email: string;
+  email_address: string;
+  purpose: string;
 }
 
 export type ForgotPasswordResponse = ApiResponse<ForgotPasswordResponseData>;
 
 export interface VerifyForgotPasswordOtpRequest {
-  email: string;
+  email_address: string;
   otp_code: string;
 }
 
 export interface VerifyForgotPasswordOtpResponseData {
-  tokens: AuthTokens;
-  user: Pick<AuthUser, "email" | "full_name" | "role">;
+  accessToken?: string;
+  refreshToken?: string;
+  tokens?: AuthTokens;
+  user: Pick<AuthUser, "email" | "email_address" | "full_name" | "role">;
 }
 
 export type VerifyForgotPasswordOtpResponse =
@@ -69,11 +78,11 @@ export interface ResetPasswordRequest {
 }
 
 export interface ResetPasswordResponseData {
-  user: AuthUser;
-  tokens: AuthTokens;
+  user?: AuthUser;
+  tokens?: AuthTokens;
 }
 
-export type ResetPasswordResponse = ApiResponse<ResetPasswordResponseData>;
+export type ResetPasswordResponse = ApiResponse<ResetPasswordResponseData | null | undefined>;
 
 export interface RegisterRequest {
   full_name: string;

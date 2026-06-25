@@ -33,21 +33,31 @@ const authSlice = createSlice({
       state,
       action: PayloadAction<{
         user: AuthUser;
-        tokens: AuthTokens;
+        tokens?: AuthTokens;
+        accessToken?: string;
+        refreshToken?: string;
       }>,
     ) => {
       state.user = action.payload.user;
-      state.token = action.payload.tokens.access;
-      state.refreshToken = action.payload.tokens.refresh;
+      state.token =
+        action.payload.accessToken ||
+        action.payload.tokens?.accessToken ||
+        action.payload.tokens?.access ||
+        null;
+      state.refreshToken =
+        action.payload.refreshToken ||
+        action.payload.tokens?.refreshToken ||
+        action.payload.tokens?.refresh ||
+        null;
 
       // Persist to localStorage and cookies
       if (typeof window !== "undefined") {
         localStorage.setItem("user", JSON.stringify(action.payload.user));
-        localStorage.setItem("accessToken", action.payload.tokens.access);
-        localStorage.setItem("refreshToken", action.payload.tokens.refresh);
+        localStorage.setItem("accessToken", state.token || "");
+        localStorage.setItem("refreshToken", state.refreshToken || "");
         setCookie("user", JSON.stringify(action.payload.user));
-        setCookie("accessToken", action.payload.tokens.access);
-        setCookie("refreshToken", action.payload.tokens.refresh);
+        setCookie("accessToken", state.token || "");
+        setCookie("refreshToken", state.refreshToken || "");
       }
     },
     logout: (state) => {

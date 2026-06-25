@@ -52,7 +52,7 @@ export default function SignInPage() {
     }
     try {
       const response = await login({
-        email: email.trim(),
+        email_address: email.trim(),
         password,
       }).unwrap();
 

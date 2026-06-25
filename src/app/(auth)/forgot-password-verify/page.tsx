@@ -2,7 +2,7 @@
 /** @format */
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import Link from "next/link";
@@ -25,6 +25,13 @@ export default function ForgotPasswordVerifyPage() {
   const dispatch = useAppDispatch();
   const [verifyForgotPasswordOtp, { isLoading }] =
     useVerifyForgotPasswordOtpMutation();
+
+  useEffect(() => {
+    if (!email) {
+      toast.error("Please request a password reset first.");
+      router.replace("/forgot-password");
+    }
+  }, [email, router]);
 
   const handleChange = (index: number, value: string) => {
     if (/^\d?$/.test(value)) {
@@ -64,7 +71,7 @@ export default function ForgotPasswordVerifyPage() {
     e.preventDefault();
     const otpValue = otp.join("");
     const validationError = validateVerifyForgotPasswordOtp({
-      email,
+      email_address: email,
       otp_code: otpValue,
     });
     if (validationError) {
@@ -74,7 +81,7 @@ export default function ForgotPasswordVerifyPage() {
 
     try {
       const response = await verifyForgotPasswordOtp({
-        email,
+        email_address: email,
         otp_code: otpValue,
       }).unwrap();
 
@@ -82,6 +89,8 @@ export default function ForgotPasswordVerifyPage() {
         dispatch(
           setCredentials({
             user: response.data.user,
+            accessToken: response.data.accessToken,
+            refreshToken: response.data.refreshToken,
             tokens: response.data.tokens,
           }),
         );

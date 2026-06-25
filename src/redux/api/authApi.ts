@@ -36,7 +36,7 @@ export const authApi = baseApi.injectEndpoints({
       VerifyForgotPasswordOtpRequest
     >({
       query: (data) => ({
-        url: "/auth/verify-forgot-password-otp/",
+        url: "/auth/verify-reset-otp/",
         method: "POST",
         body: data,
       }),

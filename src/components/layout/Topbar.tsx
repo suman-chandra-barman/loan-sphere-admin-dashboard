@@ -48,7 +48,7 @@ export default function Topbar({ onOpenSidebar }: TopbarProps) {
 
   const getPageInfo = (path: string) => {
     if (pageMap[path]) return pageMap[path];
-    
+
     // Sort keys by length descending to match the most specific prefix first
     const keys = Object.keys(pageMap).filter(key => key !== "/").sort((a, b) => b.length - a.length);
     for (const key of keys) {
