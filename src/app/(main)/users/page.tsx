@@ -215,7 +215,7 @@ export default function UsersPage() {
       )}
 
       {/* ── Cards Grid ── */}
-      {isListLoading ? (
+      {isListLoading || isListFetching ? (
         <UsersTableSkeleton />
       ) : (
         <div className="space-y-6">
@@ -250,11 +250,12 @@ export default function UsersPage() {
       )}
 
       {/* ── Drawer Detail Overlay ── */}
-      {selectedUserId && selectedUser && (
+      {selectedUserId && (
         <UserDetailDrawer
           user={selectedUser}
+          isLoading={isDetailFetching}
           onClose={() => setSelectedUserId(null)}
-          onToggleSuspend={() => handleToggleSuspend(selectedUser.id, selectedUser.status === "inactive")}
+          onToggleSuspend={() => handleToggleSuspend(selectedUserId, selectedUser?.status === "inactive")}
         />
       )}
     </div>
