@@ -43,7 +43,7 @@ export function UsersTableSkeleton() {
   return (
     <div className="space-y-6">
       {/* Cards Grid */}
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
         {Array.from({ length: 6 }).map((_, i) => (
           <Card key={i} className="p-5 bg-white border border-zinc-200/70 shadow-xs rounded-2xl flex flex-col justify-between">
             {/* Header shimmer */}

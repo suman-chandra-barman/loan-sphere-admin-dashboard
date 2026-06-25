@@ -39,7 +39,7 @@ export default function UserCard({
     >
       {/* Header section */}
       <div className="flex items-start justify-between gap-2">
-        <div className="flex items-center gap-3.5">
+        <div className="flex items-center gap-3.5 min-w-0">
           {/* Avatar */}
           <Avatar className="h-11 w-11 shrink-0 rounded-full overflow-hidden shadow-xs">
             {user.profileImage && (
@@ -54,11 +54,11 @@ export default function UserCard({
           </Avatar>
           
           <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-1.5">
+            <div className="flex items-center gap-1.5 min-w-0">
               <h3 className="font-bold text-zinc-900 text-base leading-tight truncate">
                 {user.fullName}
               </h3>
-              <Badge className={`rounded px-1.5 py-0.5 text-[10px] uppercase tracking-wider ${getRoleBadgeClass(user.role)}`}>
+              <Badge className={`rounded px-1.5 py-0.5 text-[10px] uppercase tracking-wider shrink-0 ${getRoleBadgeClass(user.role)}`}>
                 {getRoleLabel(user.role)}
               </Badge>
             </div>
