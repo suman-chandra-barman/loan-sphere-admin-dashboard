@@ -1,205 +1,304 @@
 "use client";
 
-import React, { useState, useEffect, use } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
-import { useApplications } from "@/hooks/useApplications";
+import { useParams } from "next/navigation";
+import { useGetApplicationDetailsQuery } from "@/redux/api/applicationsApi";
 import { getStatusStyles, getDtiStyles, getInitials } from "@/components/applications/ApplicationsTable";
 import { 
   ArrowLeft, 
-  Check, 
   CheckCircle2, 
   XCircle, 
   Clock, 
   Brain, 
-  AlertCircle, 
-  Home, 
-  User, 
-  Car, 
-  Briefcase, 
-  GraduationCap, 
-  RefreshCw, 
-  FileText,
-  TrendingUp,
-  Upload,
-  StickyNote,
+  FileText, 
+  TrendingUp, 
+  TrendingDown, 
+  Info, 
+  DollarSign, 
+  Plus,
+  User,
+  Home,
+  Car,
+  Briefcase,
+  GraduationCap,
+  RefreshCw,
   ShieldCheck,
-  TrendingDown,
-  Info,
-  Calendar,
-  DollarSign,
-  Plus
+  StickyNote
 } from "lucide-react";
-import { LoanApplication } from "@/types/application";
+import { Skeleton } from "@/components/ui/skeleton";
 
-// Helper for mapping loan types to Lucide Icons
 function getLoanTypeIcon(type: string) {
-  switch (type) {
-    case "Home Loan":
-      return Home;
-    case "Personal Loan":
-      return User;
-    case "Vehicle Loan":
-      return Car;
-    case "Business Loan":
-      return Briefcase;
-    case "Education Loan":
-      return GraduationCap;
-    case "Debt Consolidation":
-      return RefreshCw;
-    default:
-      return FileText;
-  }
+  const t = (type || "").toLowerCase();
+  if (t.includes("home")) return Home;
+  if (t.includes("personal")) return User;
+  if (t.includes("vehicle") || t.includes("car")) return Car;
+  if (t.includes("business")) return Briefcase;
+  if (t.includes("education")) return GraduationCap;
+  if (t.includes("consolidation") || t.includes("debt")) return RefreshCw;
+  return FileText;
 }
 
-// Helper for getting status badge message in header
 function getHeaderStatusInfo(status: string) {
-  switch (status) {
-    case "Approved":
+  const type = (status || "").toLowerCase().replace(/[\s_]+/g, " ");
+  switch (type) {
+    case "approved":
       return { label: "Application Approved", color: "bg-emerald-50 text-emerald-700 border-emerald-100", icon: CheckCircle2 };
-    case "Under Review":
+    case "under review":
       return { label: "Application Under Review", color: "bg-amber-50 text-amber-700 border-amber-100", icon: Clock };
-    case "AI Assessment":
+    case "ai assessment":
       return { label: "AI Assessing Risk", color: "bg-purple-50 text-purple-700 border-purple-100", icon: Brain };
-    case "Submitted":
+    case "submitted":
       return { label: "Application Submitted", color: "bg-blue-50 text-blue-700 border-blue-100", icon: Clock };
-    case "Pending Documents":
+    case "pending documents":
+    case "pending docs":
       return { label: "Pending Documents", color: "bg-orange-50 text-orange-700 border-orange-100", icon: FileText };
-    case "Rejected":
+    case "rejected":
       return { label: "Application Rejected", color: "bg-rose-50 text-rose-700 border-rose-100", icon: XCircle };
-    case "Draft":
+    case "draft":
       return { label: "Application Draft", color: "bg-slate-100 text-slate-600 border-slate-200", icon: FileText };
-    case "Cond. Approved":
+    case "cond. approved":
+    case "conditionally approved":
       return { label: "Conditionally Approved", color: "bg-teal-50 text-teal-700 border-teal-100", icon: CheckCircle2 };
     default:
       return { label: "Status Unknown", color: "bg-zinc-50 text-zinc-600 border-zinc-100", icon: Info };
   }
 }
 
-// Financial formula for Monthly Payment amortization
-function calculateMonthlyPayment(amountStr: string, rateStr: string, termStr: string) {
-  const amount = parseFloat(amountStr.replace(/[^0-9.]/g, "")) || 0;
-  const rate = parseFloat(rateStr.replace(/[^0-9.]/g, "")) / 100 || 0.06;
-  let months = 360;
-  if (termStr.toLowerCase().includes("year")) {
-    const years = parseInt(termStr) || 30;
-    months = years * 12;
-  } else if (termStr.toLowerCase().includes("month")) {
-    months = parseInt(termStr) || 360;
-  }
-  const monthlyRate = rate / 12;
-  if (monthlyRate === 0) return (amount / months).toFixed(0);
-  const payment = (amount * monthlyRate * Math.pow(1 + monthlyRate, months)) / (Math.pow(1 + monthlyRate, months) - 1);
-  return isNaN(payment) ? "0" : Math.round(payment).toLocaleString();
-}
-
 export default function ApplicationDetailPage() {
   const params = useParams();
   const id = params?.id as string;
-  const router = useRouter();
   
-  const { 
-    applications, 
-    handleUpdateStatus, 
-    handleToggleChecklist,
-    handleUpdateDocumentStatus,
-    handleAddNote
-  } = useApplications();
+  const { data, isLoading, error } = useGetApplicationDetailsQuery(id);
+  const app = data?.data;
 
   const [activeTab, setActiveTab] = useState("overview");
   const [newNoteContent, setNewNoteContent] = useState("");
-  const [mounted, setMounted] = useState(false);
+
+  // States for local simulated mutations
+  const [localStatus, setLocalStatus] = useState<string | null>(null);
+  const [localChecklist, setLocalChecklist] = useState({
+    idVerified: true,
+    incomeVerified: true,
+    taxReturnsVerified: true,
+    creditChecked: true,
+  });
+  const [localDocuments, setLocalDocuments] = useState<any[]>([]);
+  const [localNotes, setLocalNotes] = useState<any[]>([]);
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    if (app) {
+      setLocalStatus(app.header.statusLabel || app.header.status);
+      setLocalNotes(app.overview.adminNotes.items || []);
 
-  // Find current application
-  const app = applications.find(a => a.code === id);
+      // Mock documents array matching the uploaded Count
+      const count = app.rawApplication.documentsSummary.uploadedCount || 5;
+      const docNames = [
+        "Proof of Identity (Passport/Driver's License).pdf",
+        "Recent Paystubs (Last 2 Months).pdf",
+        "Bank Statements (Last 3 Months).pdf",
+        "W-2 Tax Forms (Last 2 Years).pdf",
+        "Property Purchase Agreement.pdf",
+        "Utility Bill (Proof of Address).pdf",
+      ];
+      const items = Array.from({ length: count }).map((_, idx) => ({
+        id: `doc-${idx}`,
+        name: docNames[idx] || `Uploaded Document ${idx + 1}.pdf`,
+        size: idx === 0 ? "1.2 MB" : idx === 1 ? "450 KB" : "890 KB",
+        date: new Date(app.rawApplication.createdAt).toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        }),
+        status: "Approved",
+      }));
+      setLocalDocuments(items);
+    }
+  }, [app]);
 
-  if (!mounted) {
-    return (
-      <div className="flex h-[50vh] items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-900" />
-      </div>
+  const handleUpdateStatus = (newStatus: string) => {
+    setLocalStatus(newStatus);
+    const notify = async () => {
+      const { toast } = await import("react-toastify");
+      toast.success(`Status updated to ${newStatus}`);
+    };
+    notify();
+  };
+
+  const handleToggleChecklist = (key: keyof typeof localChecklist) => {
+    setLocalChecklist((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
+    const notify = async () => {
+      const { toast } = await import("react-toastify");
+      toast.success("Checklist status changed");
+    };
+    notify();
+  };
+
+  const handleUpdateDocumentStatus = (docId: string, status: string) => {
+    setLocalDocuments((prev) =>
+      prev.map((doc) => (doc.id === docId ? { ...doc, status } : doc))
     );
-  }
+    const notify = async () => {
+      const { toast } = await import("react-toastify");
+      toast.success(`Document status updated to ${status}`);
+    };
+    notify();
+  };
 
-  if (!app) {
+  const handleNoteSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newNoteContent.trim()) return;
+
+    const newNoteItem = {
+      id: `note-${Date.now()}`,
+      note: newNoteContent.trim(),
+      createdBy: "Admin",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    setLocalNotes((prev) => [newNoteItem, ...prev]);
+    setNewNoteContent("");
+
+    const notify = async () => {
+      const { toast } = await import("react-toastify");
+      toast.success("Admin note added successfully");
+    };
+    notify();
+  };
+
+  if (error) {
     return (
       <div className="p-6 space-y-4">
         <Link href="/applications" className="flex items-center gap-1.5 text-zinc-500 hover:text-zinc-800 transition-colors font-bold text-sm mb-4">
           <ArrowLeft className="h-4 w-4" /> Back to Applications
         </Link>
         <div className="bg-white rounded-2xl border border-zinc-200 p-8 text-center space-y-2">
-          <h3 className="font-extrabold text-zinc-900 text-lg">Application Not Found</h3>
-          <p className="text-zinc-500 text-sm">We couldn't locate a loan application with code "{id}".</p>
+          <h3 className="font-extrabold text-zinc-900 text-lg">Error Loading Application</h3>
+          <p className="text-zinc-500 text-sm">We couldn't retrieve details for the application with ID "{id}".</p>
         </div>
       </div>
     );
   }
 
-  const LoanIcon = getLoanTypeIcon(app.type);
-  const statusInfo = getHeaderStatusInfo(app.status);
-  
-  // Calculate monthly payment and annual income
-  const monthlyPaymentVal = calculateMonthlyPayment(app.amount, app.details.rate, app.details.term);
-  const annualIncomeVal = (app.details.monthlyIncome * 12).toLocaleString();
-  
-  // Parse Employer Name from employment string (e.g. "Full Time at TechCorp Inc." -> "TechCorp Inc.")
-  let employer = "Not specified";
-  let employmentType = app.details.employment;
-  if (app.details.employment.includes("at")) {
-    const parts = app.details.employment.split("at");
-    employmentType = parts[0].trim();
-    employer = parts[1].trim();
+  if (isLoading) {
+    return (
+      <div className="space-y-6 pb-12 animate-in fade-in duration-300">
+        <div>
+          <Skeleton className="h-5 w-44 rounded-md" />
+        </div>
+        <div className="bg-white rounded-2xl border border-zinc-200/60 p-6 shadow-sm space-y-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <Skeleton className="h-14 w-14 rounded-2xl" />
+              <div className="space-y-2">
+                <Skeleton className="h-6 w-48 rounded" />
+                <Skeleton className="h-4 w-32 rounded" />
+              </div>
+            </div>
+            <Skeleton className="h-11 w-44 rounded-2xl" />
+          </div>
+          <hr className="border-zinc-100" />
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="space-y-2">
+                <Skeleton className="h-3 w-16 rounded" />
+                <Skeleton className="h-6 w-24 rounded" />
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="flex justify-start">
+          <Skeleton className="h-11 w-[380px] rounded-2xl" />
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="bg-white rounded-2xl border border-zinc-200/60 p-6 shadow-sm space-y-4">
+            <Skeleton className="h-5 w-32 rounded" />
+            <div className="flex items-center gap-4">
+              <Skeleton className="h-12 w-12 rounded-full" />
+              <div className="space-y-1.5">
+                <Skeleton className="h-4 w-28 rounded" />
+                <Skeleton className="h-3 w-40 rounded" />
+              </div>
+            </div>
+            <hr className="border-zinc-100" />
+            <div className="space-y-3">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="flex justify-between"><Skeleton className="h-3.5 w-20 rounded" /><Skeleton className="h-3.5 w-28 rounded" /></div>
+              ))}
+            </div>
+          </div>
+          <div className="bg-white rounded-2xl border border-zinc-200/60 p-6 shadow-sm space-y-4">
+            <Skeleton className="h-5 w-32 rounded" />
+            <div className="space-y-3.5">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="flex justify-between"><Skeleton className="h-3.5 w-24 rounded" /><Skeleton className="h-3.5 w-16 rounded" /></div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
-  // Calculate Radial Progress dashboard parameters for AI risk score
-  const riskScore = app.details.creditScore >= 740 ? 78 : app.details.creditScore >= 700 ? 65 : 42;
+  if (!app) return null;
+
+  const LoanIcon = getLoanTypeIcon(app.header.title);
+  const statusInfo = getHeaderStatusInfo(localStatus || "");
+
   const radius = 36;
   const strokeWidth = 6;
   const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (riskScore / 100) * circumference;
+  const strokeDashoffset = circumference - (app.overview.aiRiskAssessment.riskScore / 100) * circumference;
 
-  // AI Checks list derived dynamically
-  const aiChecks = [
+  const timelineEvents = ([
     {
-      title: "Credit Score",
-      desc: `Credit score of ${app.details.creditScore} is ${app.details.creditScore >= 700 ? "above" : "below"} the 700 threshold for preferred rates.`,
-      status: app.details.creditScore >= 700 ? "success" : "warning"
+      label: "Application submitted by customer",
+      date: `${app.header.customerName} • ${new Date(app.rawApplication.createdAt).toLocaleString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+      })}`,
+      icon: FileText,
+      color: "text-zinc-500 bg-zinc-50",
+    },
+    app.rawApplication.submittedAt && {
+      label: "Referred to manual underwriting review",
+      date: `System • ${new Date(app.rawApplication.submittedAt).toLocaleString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+      })}`,
+      icon: Clock,
+      color: "text-amber-600 bg-amber-50",
     },
     {
-      title: "DTI Ratio",
-      desc: `Debt-to-income ratio of ${app.dti}% is ${app.dti <= 43 ? "well within" : "above"} the acceptable range of 43%.`,
-      status: app.dti <= 43 ? "success" : "danger"
+      label: `AI assessment score generated: ${app.overview.aiRiskAssessment.riskScore}`,
+      date: `AI Engine • ${new Date(app.rawApplication.createdAt).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      })}`,
+      icon: Brain,
+      color: "text-purple-600 bg-purple-50",
     },
-    {
-      title: "Employment Stability",
-      desc: `Employment: ${employmentType} ${employer !== "Not specified" ? `with ${employer}` : ""} indicates credit stability.`,
-      status: "success"
+    localStatus !== (app.header.statusLabel || app.header.status) && {
+      label: `Status manually updated to ${localStatus}`,
+      date: `Admin • Just now`,
+      icon: ShieldCheck,
+      color: "text-indigo-600 bg-indigo-50",
     },
-    {
-      title: "Loan-to-Value",
-      desc: `LTV of 85% is standard for first-time home buyers with PMI.`,
-      status: "info"
-    },
-    {
-      title: "Savings Reserve",
-      desc: `Applicant has 6+ months of mortgage payments in reserve.`,
-      status: "success"
-    }
-  ];
-
-  const handleNoteSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newNoteContent.trim()) return;
-    handleAddNote(app.code, newNoteContent.trim());
-    setNewNoteContent("");
-  };
+  ].filter(Boolean) as any[]);
 
   return (
-    <div className="space-y-6 pb-12">
+    <div className="space-y-6 pb-12 animate-in fade-in duration-300">
       
       {/* Top back navigation */}
       <div>
@@ -215,25 +314,23 @@ export default function ApplicationDetailPage() {
       <div className="bg-white rounded-2xl border border-zinc-200/60 p-6 shadow-sm space-y-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            {/* Box Icon dynamic by loan type */}
             <div className="h-14 w-14 shrink-0 rounded-2xl bg-[#9c2415]/10 border border-[#9c2415]/15 flex items-center justify-center text-[#9c2415]">
               <LoanIcon className="h-7 w-7" />
             </div>
             <div>
               <div className="flex items-center gap-2.5 flex-wrap">
-                <h2 className="text-xl font-black text-zinc-900 tracking-tight">{app.type}</h2>
-                <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold shadow-3xs ${getStatusStyles(app.status)}`}>
-                  {app.status}
+                <h2 className="text-xl font-black text-zinc-900 tracking-tight">{app.header.title}</h2>
+                <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold shadow-3xs ${getStatusStyles(localStatus || "")}`}>
+                  {localStatus}
                 </span>
               </div>
               <p className="text-xs font-bold text-zinc-400 mt-1 uppercase tracking-wider">
-                {app.code} • Applied {app.date}
+                {app.applicationNumber} • Applied {new Date(app.rawApplication.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
               </p>
-              <p className="text-sm font-semibold text-zinc-800 mt-0.5">{app.customer}</p>
+              <p className="text-sm font-semibold text-zinc-800 mt-0.5">{app.header.customerName}</p>
             </div>
           </div>
 
-          {/* Right hand check banner */}
           <div className={`flex items-center gap-3 px-5 py-3 rounded-2xl border ${statusInfo.color} md:w-auto w-full justify-center shadow-3xs`}>
             <statusInfo.icon className="h-5 w-5 shrink-0" />
             <span className="font-bold text-sm tracking-tight">{statusInfo.label}</span>
@@ -246,25 +343,19 @@ export default function ApplicationDetailPage() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
           <div>
             <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider block">Loan Amount</span>
-            <p className="text-xl font-black text-zinc-900 mt-1">{app.amount}</p>
+            <p className="text-xl font-black text-zinc-900 mt-1">{app.header.loanAmountDisplay}</p>
           </div>
           <div>
             <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider block">Monthly Payment</span>
-            <p className="text-xl font-black text-zinc-900 mt-1">${monthlyPaymentVal}</p>
+            <p className="text-xl font-black text-zinc-900 mt-1">{app.header.monthlyPaymentDisplay}</p>
           </div>
           <div>
             <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider block">Interest Rate</span>
-            <p className="text-xl font-black text-zinc-900 mt-1">{app.details.rate}</p>
+            <p className="text-xl font-black text-zinc-900 mt-1">{app.header.interestRate}</p>
           </div>
           <div>
             <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider block">Term</span>
-            <p className="text-xl font-black text-zinc-900 mt-1">
-              {app.details.term.toLowerCase().includes("month") 
-                ? app.details.term 
-                : app.details.term.toLowerCase().includes("year")
-                  ? `${parseInt(app.details.term) * 12} months`
-                  : app.details.term}
-            </p>
+            <p className="text-xl font-black text-zinc-900 mt-1">{app.header.term}</p>
           </div>
         </div>
       </div>
@@ -309,11 +400,11 @@ export default function ApplicationDetailPage() {
                 
                 <div className="flex items-center gap-4">
                   <div className="h-12 w-12 rounded-full bg-[#9c2415] text-white font-black flex items-center justify-center text-sm shadow-3xs">
-                    {getInitials(app.customer)}
+                    {getInitials(app.overview.customerProfile.customer?.name || "")}
                   </div>
                   <div>
-                    <h4 className="font-extrabold text-zinc-900 text-base">{app.customer}</h4>
-                    <p className="text-xs font-semibold text-zinc-400 mt-0.5">{app.details.email}</p>
+                    <h4 className="font-extrabold text-zinc-900 text-base">{app.overview.customerProfile.customer?.name}</h4>
+                    <p className="text-xs font-semibold text-zinc-400 mt-0.5">{app.overview.customerProfile.customer?.email}</p>
                   </div>
                 </div>
 
@@ -322,31 +413,33 @@ export default function ApplicationDetailPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 text-sm">
                   <div>
                     <span className="text-xs font-bold text-zinc-400 block uppercase tracking-wider">Phone</span>
-                    <p className="font-semibold text-zinc-800 mt-1">{app.details.phone}</p>
+                    <p className="font-semibold text-zinc-800 mt-1">{app.overview.customerProfile.phone}</p>
                   </div>
                   <div>
                     <span className="text-xs font-bold text-zinc-400 block uppercase tracking-wider">Credit Score</span>
                     <div className="mt-1 flex items-center">
                       <span className={`font-extrabold text-xs px-2.5 py-0.5 rounded-md ${
-                        app.details.creditScore >= 720 
+                        app.overview.customerProfile.creditScore >= 720 
                           ? "bg-emerald-50 text-emerald-700 border border-emerald-100" 
-                          : app.details.creditScore >= 620 
+                          : app.overview.customerProfile.creditScore >= 620 
                             ? "bg-amber-50 text-amber-700 border border-amber-100" 
                             : "bg-rose-50 text-rose-700 border border-rose-100"
-                      }`}>{app.details.creditScore}</span>
+                      }`}>{app.overview.customerProfile.creditScore}</span>
                     </div>
                   </div>
                   <div>
                     <span className="text-xs font-bold text-zinc-400 block uppercase tracking-wider">Annual Income</span>
-                    <p className="font-semibold text-zinc-800 mt-1">${annualIncomeVal}</p>
+                    <p className="font-semibold text-zinc-800 mt-1">{app.overview.customerProfile.annualIncomeDisplay}</p>
                   </div>
-                  <div>
-                    <span className="text-xs font-bold text-zinc-400 block uppercase tracking-wider">Employer</span>
-                    <p className="font-semibold text-zinc-800 mt-1">{employer}</p>
-                  </div>
+                  {app.overview.customerProfile.employer && (
+                    <div>
+                      <span className="text-xs font-bold text-zinc-400 block uppercase tracking-wider">Employer</span>
+                      <p className="font-semibold text-zinc-800 mt-1">{app.overview.customerProfile.employer}</p>
+                    </div>
+                  )}
                   <div>
                     <span className="text-xs font-bold text-zinc-400 block uppercase tracking-wider">Employment</span>
-                    <p className="font-semibold text-zinc-800 mt-1">{employmentType}</p>
+                    <p className="font-semibold text-zinc-800 mt-1">{app.overview.customerProfile.employment}</p>
                   </div>
                 </div>
               </div>
@@ -362,33 +455,31 @@ export default function ApplicationDetailPage() {
                   <div className="space-y-3.5">
                     <div className="flex justify-between items-center text-sm">
                       <span className="text-zinc-400 font-bold uppercase tracking-wider text-xs">Requested Amount</span>
-                      <span className="font-extrabold text-zinc-800">{app.amount}</span>
+                      <span className="font-extrabold text-zinc-800">{app.overview.financialSummary.requestedAmountDisplay}</span>
                     </div>
                     <div className="flex justify-between items-center text-sm">
                       <span className="text-zinc-400 font-bold uppercase tracking-wider text-xs">Annual Income</span>
-                      <span className="font-extrabold text-zinc-800">${annualIncomeVal}</span>
-                    </div>
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-zinc-400 font-bold uppercase tracking-wider text-xs">Monthly Expenses</span>
-                      <span className="font-extrabold text-zinc-800">${app.details.monthlyDebt.toLocaleString()}</span>
+                      <span className="font-extrabold text-zinc-800">{app.overview.financialSummary.annualIncomeDisplay}</span>
                     </div>
                     <div className="flex justify-between items-center text-sm">
                       <span className="text-zinc-400 font-bold uppercase tracking-wider text-xs">Monthly Payment</span>
-                      <span className="font-extrabold text-zinc-800">${monthlyPaymentVal}</span>
+                      <span className="font-extrabold text-zinc-800">{app.overview.financialSummary.monthlyPaymentDisplay}</span>
                     </div>
-                    <div className="flex justify-between items-start text-sm gap-4">
-                      <span className="text-zinc-400 font-bold uppercase tracking-wider text-xs mt-0.5">Purpose</span>
-                      <span className="font-semibold text-zinc-800 text-right leading-relaxed max-w-[280px]">
-                        {app.details.purpose}
-                      </span>
-                    </div>
+                    {app.overview.financialSummary.purpose && (
+                      <div className="flex justify-between items-start text-sm gap-4">
+                        <span className="text-zinc-400 font-bold uppercase tracking-wider text-xs mt-0.5">Purpose</span>
+                        <span className="font-semibold text-zinc-800 text-right leading-relaxed max-w-[280px]">
+                          {app.overview.financialSummary.purpose}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
 
                 {/* DTI highlight bar at bottom */}
                 <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-4.5 flex justify-between items-center shadow-3xs mt-2">
                   <span className="font-bold text-emerald-800 text-sm">Debt-to-Income Ratio</span>
-                  <span className="font-black text-emerald-700 text-xl">{app.dti}%</span>
+                  <span className="font-black text-emerald-700 text-xl">{app.overview.financialSummary.dtiRatioDisplay}</span>
                 </div>
               </div>
 
@@ -396,10 +487,8 @@ export default function ApplicationDetailPage() {
 
             {/* AI Risk Assessment Card */}
             <div className="bg-[#5c24b8] text-white rounded-2xl p-6 shadow-md flex flex-col md:flex-row items-center gap-6 relative overflow-hidden">
-              {/* Decorative radial blur background */}
               <div className="absolute -right-20 -bottom-20 w-80 h-80 rounded-full bg-purple-500/20 blur-3xl pointer-events-none" />
               
-              {/* Radial score indicator */}
               <div className="flex flex-col items-center shrink-0 gap-3 z-10">
                 <div className="relative flex items-center justify-center">
                   <svg className="w-24 h-24 transform -rotate-90">
@@ -424,48 +513,40 @@ export default function ApplicationDetailPage() {
                     />
                   </svg>
                   <div className="absolute flex flex-col items-center justify-center">
-                    <span className="text-2xl font-black leading-none">{riskScore}</span>
+                    <span className="text-2xl font-black leading-none">{app.overview.aiRiskAssessment.riskScore}</span>
                     <span className="text-[10px] font-bold opacity-60 mt-0.5">Risk Score</span>
                   </div>
                 </div>
                 
                 <span className="bg-emerald-400 text-emerald-950 text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow-3xs">
-                  Approve Recommended
+                  {app.overview.aiRiskAssessment.recommendation}
                 </span>
               </div>
 
-              {/* Assessment list checks */}
               <div className="flex-1 space-y-4 z-10">
                 <div className="space-y-1">
                   <h3 className="font-black text-base tracking-tight flex items-center gap-1.5">
                     <Brain className="h-5 w-5 shrink-0" /> AI Risk Assessment
                   </h3>
                   <p className="text-xs font-semibold text-purple-200/90 leading-relaxed">
-                    {app.customer} presents a low-risk profile for this {app.amount} {app.type.toLowerCase()}. Strong credit history, stable income, and reasonable DTI ratio support an approval recommendation. Loan-to-value ratio is typical for the market segment.
+                    {app.overview.aiRiskAssessment.summary}
                   </p>
                 </div>
 
                 <hr className="border-white/10" />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 text-xs font-semibold">
-                  {aiChecks.map((check, idx) => {
-                    let arrowIcon = TrendingUp;
-                    let iconColor = "text-emerald-400";
-                    if (check.status === "warning" || check.status === "danger") {
-                      arrowIcon = TrendingDown;
-                      iconColor = "text-amber-400";
-                    } else if (check.status === "info") {
-                      arrowIcon = Info;
-                      iconColor = "text-zinc-300";
-                    }
-                    const IconComp = arrowIcon;
+                  {app.overview.aiRiskAssessment.factors.map((factor, idx) => {
+                    const isPositive = factor.type === "positive";
+                    const IconComp = isPositive ? CheckCircle2 : Info;
+                    const iconColor = isPositive ? "text-emerald-400" : "text-amber-400";
                     return (
                       <div key={idx} className="flex gap-2.5 items-start">
                         <span className={`p-0.5 rounded-md bg-white/10 ${iconColor} shrink-0 mt-0.5`}>
                           <IconComp className="h-3.5 w-3.5" />
                         </span>
                         <p className="text-[11px] leading-relaxed text-white/95">
-                          <strong className="font-extrabold">{check.title}</strong>: {check.desc}
+                          <strong className="font-extrabold">{factor.label}</strong>: {factor.description}
                         </p>
                       </div>
                     );
@@ -475,29 +556,71 @@ export default function ApplicationDetailPage() {
             </div>
 
             {/* Admin Notes Summary Box */}
-            {app.details.notes && app.details.notes.length > 0 && (
+            {localNotes.length > 0 && (
               <div className="bg-amber-50/70 border border-amber-200/60 rounded-2xl p-5 shadow-3xs flex gap-3.5">
                 <Info className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
                 <div>
                   <h4 className="font-extrabold text-amber-900 text-sm">Admin Notes</h4>
                   <p className="text-sm font-semibold text-amber-800 mt-1 leading-relaxed">
-                    {app.details.notes[0].content}
+                    {localNotes[0].note}
                   </p>
                 </div>
               </div>
             )}
+
+            {/* Actions Grid in overview */}
+            <div className="bg-white rounded-2xl border border-zinc-200/60 p-5 shadow-sm space-y-4">
+              <h3 className="font-extrabold text-zinc-900 text-sm uppercase tracking-tight">Decisions & Actions</h3>
+              <div className="flex flex-wrap gap-3">
+                {app.actions.canApprove && localStatus !== "Approved" && (
+                  <button
+                    onClick={() => handleUpdateStatus("Approved")}
+                    className="flex-1 h-11 px-4 rounded-xl bg-indigo-900 text-white font-bold text-sm shadow-xs hover:bg-indigo-950 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <CheckCircle2 className="h-4.5 w-4.5" />
+                    Approve Application
+                  </button>
+                )}
+                {app.actions.canReject && localStatus !== "Rejected" && (
+                  <button
+                    onClick={() => handleUpdateStatus("Rejected")}
+                    className="h-11 px-5 rounded-xl border border-zinc-200 bg-white text-rose-600 hover:bg-rose-50 hover:border-rose-100 font-bold text-sm transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <XCircle className="h-4.5 w-4.5" />
+                    Reject Application
+                  </button>
+                )}
+                {localStatus !== "AI Assessment" && (
+                  <button
+                    onClick={() => handleUpdateStatus("AI Assessment")}
+                    className="h-11 px-4 rounded-xl border border-zinc-200 bg-white text-purple-600 hover:bg-purple-50 hover:border-purple-100 font-bold text-sm transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <Brain className="h-4.5 w-4.5" />
+                    AI Re-Review
+                  </button>
+                )}
+                {app.actions.canRequestDocuments && localStatus !== "Pending Documents" && (
+                  <button
+                    onClick={() => handleUpdateStatus("Pending Documents")}
+                    className="h-11 px-4 rounded-xl border border-zinc-200 bg-white text-orange-600 hover:bg-orange-50 hover:border-orange-100 font-bold text-sm transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <FileText className="h-4.5 w-4.5" />
+                    Request Documents
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
         )}
 
         {/* DOCUMENTS TAB */}
         {activeTab === "documents" && (
-          <div className="bg-white rounded-2xl border border-zinc-200/60 p-0 shadow-sm overflow-hidden">
+          <div className="bg-white rounded-2xl border border-zinc-200/60 p-0 shadow-sm overflow-hidden animate-in fade-in duration-200">
             <div className="divide-y divide-zinc-100">
-              {(app.details.documents || []).length > 0 ? (
-                (app.details.documents || []).map((doc) => (
+              {localDocuments.length > 0 ? (
+                localDocuments.map((doc) => (
                   <div key={doc.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 hover:bg-zinc-50/20 transition-colors">
                     <div className="flex items-center gap-3.5">
-                      {/* Red/Amber doc icon */}
                       <div className="h-10.5 w-10.5 rounded-xl bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-600">
                         <FileText className="h-5.5 w-5.5" />
                       </div>
@@ -509,7 +632,6 @@ export default function ApplicationDetailPage() {
                       </div>
                     </div>
 
-                    {/* Right side document status badge and action triggers */}
                     <div className="flex items-center gap-3 self-end sm:self-auto flex-wrap">
                       <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-bold shadow-3xs ${
                         doc.status === "Approved" 
@@ -522,7 +644,7 @@ export default function ApplicationDetailPage() {
                       </span>
                       
                       <button
-                        onClick={() => handleUpdateDocumentStatus(app.code, doc.id, "Approved")}
+                        onClick={() => handleUpdateDocumentStatus(doc.id, "Approved")}
                         disabled={doc.status === "Approved"}
                         className={`h-9 px-3 rounded-xl font-bold text-xs border transition-all cursor-pointer ${
                           doc.status === "Approved"
@@ -534,7 +656,7 @@ export default function ApplicationDetailPage() {
                       </button>
 
                       <button
-                        onClick={() => handleUpdateDocumentStatus(app.code, doc.id, "Rejected")}
+                        onClick={() => handleUpdateDocumentStatus(doc.id, "Rejected")}
                         disabled={doc.status === "Rejected"}
                         className={`h-9 px-3 rounded-xl font-bold text-xs border transition-all cursor-pointer ${
                           doc.status === "Rejected"
@@ -558,10 +680,9 @@ export default function ApplicationDetailPage() {
 
         {/* TIMELINE TAB */}
         {activeTab === "timeline" && (
-          <div className="bg-white rounded-2xl border border-zinc-200/60 p-6 shadow-sm">
+          <div className="bg-white rounded-2xl border border-zinc-200/60 p-6 shadow-sm animate-in fade-in duration-200">
             <div className="relative space-y-6 before:absolute before:left-4 before:top-2 before:bottom-2 before:w-0.5 before:bg-zinc-100/80">
-              {app.details.timeline.map((event, index) => {
-                // event.icon is mapped to React.ComponentType by our deserializer
+              {timelineEvents.map((event, index) => {
                 const TimelineIconComp = event.icon;
                 return (
                   <div key={index} className="flex gap-4 relative">
@@ -581,28 +702,36 @@ export default function ApplicationDetailPage() {
 
         {/* NOTES TAB */}
         {activeTab === "notes" && (
-          <div className="space-y-6">
+          <div className="space-y-6 animate-in fade-in duration-200">
             
             {/* Notes List */}
             <div className="space-y-4">
-              {(app.details.notes || []).length > 0 ? (
-                (app.details.notes || []).map((note) => (
+              {localNotes.length > 0 ? (
+                localNotes.map((note) => (
                   <div key={note.id} className="bg-white rounded-2xl border border-zinc-200/60 p-5 shadow-sm space-y-2">
                     <div className="flex items-center justify-between gap-4 flex-wrap">
                       <div className="flex items-center gap-2">
                         <div className="h-6 w-6 rounded-full bg-zinc-200 text-zinc-700 flex items-center justify-center font-bold text-[10px] uppercase shadow-3xs">
-                          {getInitials(note.author)}
+                          {getInitials(note.createdBy || "")}
                         </div>
-                        <span className="font-extrabold text-zinc-800 text-xs">{note.author}</span>
+                        <span className="font-extrabold text-zinc-800 text-xs">{note.createdBy}</span>
                         <span className="bg-amber-50 text-amber-700 border border-amber-100/50 rounded px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider shadow-3xs">
                           Admin Note
                         </span>
                       </div>
-                      <span className="text-[10px] font-bold text-zinc-400">{note.date}</span>
+                      <span className="text-[10px] font-bold text-zinc-400">
+                        {new Date(note.createdAt).toLocaleString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </span>
                     </div>
                     
                     <p className="text-sm font-semibold text-zinc-600 leading-relaxed pl-8">
-                      {note.content}
+                      {note.note}
                     </p>
                   </div>
                 ))
@@ -614,30 +743,32 @@ export default function ApplicationDetailPage() {
             </div>
 
             {/* Note Input Form */}
-            <div className="bg-white rounded-2xl border border-zinc-200/60 p-5 shadow-sm space-y-4">
-              <h3 className="font-extrabold text-zinc-900 text-sm uppercase tracking-tight">Add Note</h3>
-              <form onSubmit={handleNoteSubmit} className="space-y-4">
-                <textarea
-                  value={newNoteContent}
-                  onChange={(e) => setNewNoteContent(e.target.value)}
-                  placeholder="Add an internal note about this application..."
-                  rows={4}
-                  className="w-full rounded-xl border border-zinc-200/80 p-4 text-sm font-semibold focus:border-[#9c2415] focus:outline-none placeholder-zinc-300 resize-none leading-relaxed text-zinc-700 bg-zinc-50/25 focus:bg-white transition-colors"
-                />
-                
-                <button
-                  type="submit"
-                  disabled={!newNoteContent.trim()}
-                  className={`h-10 px-5 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-3xs transition-all cursor-pointer ${
-                    newNoteContent.trim()
-                      ? "bg-[#9c2415] text-white hover:bg-[#851e11] active:scale-98"
-                      : "bg-zinc-100 text-zinc-400 border border-zinc-200/50 cursor-not-allowed"
-                  }`}
-                >
-                  <Plus className="h-4 w-4" /> Add Note
-                </button>
-              </form>
-            </div>
+            {app.actions.canAddNote && (
+              <div className="bg-white rounded-2xl border border-zinc-200/60 p-5 shadow-sm space-y-4">
+                <h3 className="font-extrabold text-zinc-900 text-sm uppercase tracking-tight">Add Note</h3>
+                <form onSubmit={handleNoteSubmit} className="space-y-4">
+                  <textarea
+                    value={newNoteContent}
+                    onChange={(e) => setNewNoteContent(e.target.value)}
+                    placeholder="Add an internal note about this application..."
+                    rows={4}
+                    className="w-full rounded-xl border border-zinc-200/80 p-4 text-sm font-semibold focus:border-[#9c2415] focus:outline-none placeholder-zinc-300 resize-none leading-relaxed text-zinc-700 bg-zinc-50/25 focus:bg-white transition-colors"
+                  />
+                  
+                  <button
+                    type="submit"
+                    disabled={!newNoteContent.trim()}
+                    className={`h-10 px-5 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-3xs transition-all cursor-pointer ${
+                      newNoteContent.trim()
+                        ? "bg-[#9c2415] text-white hover:bg-[#851e11] active:scale-98"
+                        : "bg-zinc-100 text-zinc-400 border border-zinc-200/50 cursor-not-allowed"
+                    }`}
+                  >
+                    <Plus className="h-4 w-4" /> Add Note
+                  </button>
+                </form>
+              </div>
+            )}
           </div>
         )}
       </div>
