@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useGetApplicationDetailsQuery } from "@/redux/api/applicationsApi";
-import { getStatusStyles, getDtiStyles, getInitials } from "@/components/applications/ApplicationsTable";
+import { getStatusStyles, getInitials } from "@/components/applications/ApplicationsTable";
 import { 
   ArrowLeft, 
   CheckCircle2, 
@@ -12,8 +12,6 @@ import {
   Clock, 
   Brain, 
   FileText, 
-  TrendingUp, 
-  TrendingDown, 
   Info, 
   DollarSign, 
   Plus,
@@ -333,7 +331,7 @@ export default function ApplicationDetailPage() {
 
           <div className={`flex items-center gap-3 px-5 py-3 rounded-2xl border ${statusInfo.color} md:w-auto w-full justify-center shadow-3xs`}>
             <statusInfo.icon className="h-5 w-5 shrink-0" />
-            <span className="font-bold text-sm tracking-tight">{statusInfo.label}</span>
+            <span className="font-bold text-sm tracking-tight">{localStatus}</span>
           </div>
         </div>
 
@@ -568,48 +566,6 @@ export default function ApplicationDetailPage() {
               </div>
             )}
 
-            {/* Actions Grid in overview */}
-            <div className="bg-white rounded-2xl border border-zinc-200/60 p-5 shadow-sm space-y-4">
-              <h3 className="font-extrabold text-zinc-900 text-sm uppercase tracking-tight">Decisions & Actions</h3>
-              <div className="flex flex-wrap gap-3">
-                {app.actions.canApprove && localStatus !== "Approved" && (
-                  <button
-                    onClick={() => handleUpdateStatus("Approved")}
-                    className="flex-1 h-11 px-4 rounded-xl bg-indigo-900 text-white font-bold text-sm shadow-xs hover:bg-indigo-950 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
-                  >
-                    <CheckCircle2 className="h-4.5 w-4.5" />
-                    Approve Application
-                  </button>
-                )}
-                {app.actions.canReject && localStatus !== "Rejected" && (
-                  <button
-                    onClick={() => handleUpdateStatus("Rejected")}
-                    className="h-11 px-5 rounded-xl border border-zinc-200 bg-white text-rose-600 hover:bg-rose-50 hover:border-rose-100 font-bold text-sm transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
-                  >
-                    <XCircle className="h-4.5 w-4.5" />
-                    Reject Application
-                  </button>
-                )}
-                {localStatus !== "AI Assessment" && (
-                  <button
-                    onClick={() => handleUpdateStatus("AI Assessment")}
-                    className="h-11 px-4 rounded-xl border border-zinc-200 bg-white text-purple-600 hover:bg-purple-50 hover:border-purple-100 font-bold text-sm transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
-                  >
-                    <Brain className="h-4.5 w-4.5" />
-                    AI Re-Review
-                  </button>
-                )}
-                {app.actions.canRequestDocuments && localStatus !== "Pending Documents" && (
-                  <button
-                    onClick={() => handleUpdateStatus("Pending Documents")}
-                    className="h-11 px-4 rounded-xl border border-zinc-200 bg-white text-orange-600 hover:bg-orange-50 hover:border-orange-100 font-bold text-sm transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
-                  >
-                    <FileText className="h-4.5 w-4.5" />
-                    Request Documents
-                  </button>
-                )}
-              </div>
-            </div>
           </div>
         )}
 

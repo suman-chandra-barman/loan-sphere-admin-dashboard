@@ -11,7 +11,6 @@ import type { ListApplicationItem } from "@/types/adminApplication";
 
 interface ApplicationsTableProps {
   applications: ListApplicationItem[];
-  onSelectApp: (id: string) => void;
   isLoading?: boolean;
 }
 
@@ -59,7 +58,6 @@ export const getInitials = (name: string) => {
 
 export default function ApplicationsTable({
   applications,
-  onSelectApp,
   isLoading,
 }: ApplicationsTableProps) {
   if (isLoading) {
@@ -163,8 +161,7 @@ export default function ApplicationsTable({
                   return (
                     <TableRow
                       key={app.id}
-                      onClick={() => onSelectApp(app.id)}
-                      className="group border-b border-zinc-100 hover:bg-zinc-50/35 transition-colors duration-200 cursor-pointer"
+                      className="group border-b border-zinc-100 hover:bg-zinc-50/35 transition-colors duration-200"
                     >
                       <TableCell className="px-6 py-4.5 font-bold text-[#e05638]">
                         {app.applicationNumber}
@@ -202,7 +199,7 @@ export default function ApplicationsTable({
                       <TableCell className="px-6 py-4.5 text-zinc-400 font-semibold text-sm">
                         {dateDisplay}
                       </TableCell>
-                      <TableCell className="px-6 py-4.5 text-right" onClick={(e) => e.stopPropagation()}>
+                      <TableCell className="px-6 py-4.5 text-right">
                         <Link 
                           href={`/applications/${app.id}`}
                           className="inline-flex items-center justify-center text-zinc-300 hover:text-zinc-600 transition-colors duration-300 group/btn p-1"

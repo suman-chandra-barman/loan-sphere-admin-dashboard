@@ -59,7 +59,7 @@ export default function QuickActionsCard({
         </CardHeader>
         <CardContent className="flex-1 px-6 pb-6 pt-1">
           <div className="divide-y divide-zinc-100/65">
-            {Array.from({ length: 4 }).map((_, idx) => (
+            {Array.from({ length: 3 }).map((_, idx) => (
               <div key={idx} className="flex items-center justify-between py-3.5 px-2">
                 <div className="flex items-center gap-3">
                   <Skeleton className="h-9 w-9 rounded-lg" />

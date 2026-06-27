@@ -7,7 +7,6 @@ import ApplicationsHeader from "@/components/applications/ApplicationsHeader";
 import ApplicationsFilters from "@/components/applications/ApplicationsFilters";
 import ApplicationsTable from "@/components/applications/ApplicationsTable";
 import ApplicationsPagination from "@/components/applications/ApplicationsPagination";
-import ApplicationDetailDrawer from "@/components/applications/ApplicationDetailDrawer";
 
 export const ITEMS_PER_PAGE = 8;
 
@@ -23,7 +22,6 @@ export default function ApplicationsPage() {
   const [typeFilter, setTypeFilter] = useState("All");
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedAppId, setSelectedAppId] = useState<string | null>(null);
 
   // Map state to query params
   const queryParams = {
@@ -119,7 +117,6 @@ export default function ApplicationsPage() {
       {/* Applications Table Card */}
       <ApplicationsTable
         applications={applicationsList}
-        onSelectApp={(id) => setSelectedAppId(id)}
         isLoading={isLoading}
       />
 
@@ -131,14 +128,6 @@ export default function ApplicationsPage() {
           filteredCount={totalCount}
           itemsPerPage={ITEMS_PER_PAGE}
           onPageChange={setCurrentPage}
-        />
-      )}
-
-      {/* Slide-out Drawer Panel overlay & Container */}
-      {selectedAppId && (
-        <ApplicationDetailDrawer
-          selectedAppId={selectedAppId}
-          onClose={() => setSelectedAppId(null)}
         />
       )}
     </div>
