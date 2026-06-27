@@ -45,7 +45,7 @@ export default function MonthlyDisbursementsChart({
 }: MonthlyDisbursementsChartProps) {
   if (isLoading) {
     return (
-      <Card className="flex flex-col border-zinc-200/60 shadow-sm rounded-2xl bg-white h-[328px]">
+      <Card className="flex flex-col border-zinc-200/60 shadow-sm rounded-2xl bg-white h-[450px]">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-6 px-6 pt-6">
           <div className="space-y-2">
             <Skeleton className="h-5 w-40 rounded-md" />
@@ -54,12 +54,12 @@ export default function MonthlyDisbursementsChart({
           <Skeleton className="h-5 w-5 rounded-md" />
         </CardHeader>
         <CardContent className="px-6 pb-6 flex-1 flex flex-col justify-end">
-          <div className="flex items-end gap-3 h-[180px] w-full">
+          <div className="flex items-end gap-3 h-[300px] w-full">
             {Array.from({ length: 6 }).map((_, idx) => (
               <div key={idx} className="flex-1 flex flex-col items-center gap-2">
                 <Skeleton
                   className="w-full rounded-t-lg"
-                  style={{ height: `${20 + idx * 25}px` }}
+                  style={{ height: `${20 + idx * 45}px` }}
                 />
                 <Skeleton className="h-3 w-8 rounded-md" />
               </div>
@@ -77,7 +77,7 @@ export default function MonthlyDisbursementsChart({
   }));
 
   return (
-    <Card className="flex flex-col border-zinc-200/60 shadow-sm rounded-2xl bg-white h-[328px]">
+    <Card className="flex flex-col border-zinc-200/60 shadow-sm rounded-2xl bg-white h-[450px]">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-6 px-6 pt-6">
         <div className="space-y-0.5">
           <CardTitle className="text-base font-bold text-zinc-900">
@@ -90,7 +90,7 @@ export default function MonthlyDisbursementsChart({
         <BarChart3 className="h-4 w-4 text-zinc-300" />
       </CardHeader>
       <CardContent className="px-3 pb-4 flex-1">
-        <div className="h-[240px] w-full text-xs">
+        <div className="h-[340px] w-full text-xs">
           {chartData.length === 0 ? (
             <div className="flex h-full items-center justify-center text-zinc-400 font-medium">
               No data available
@@ -127,11 +127,12 @@ export default function MonthlyDisbursementsChart({
                   dx={-4}
                 />
                 <Tooltip
+                  wrapperStyle={{ zIndex: 1000 }}
                   content={({ active, payload }) => {
                     if (active && payload && payload.length) {
                       const item = payload[0].payload;
                       return (
-                        <div className="rounded-xl border border-zinc-100 bg-white p-3 shadow-lg">
+                        <div className="rounded-xl border border-zinc-100 bg-white p-3 shadow-lg z-50">
                           <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
                             {item.month}
                           </p>
@@ -161,3 +162,4 @@ export default function MonthlyDisbursementsChart({
     </Card>
   );
 }
+
