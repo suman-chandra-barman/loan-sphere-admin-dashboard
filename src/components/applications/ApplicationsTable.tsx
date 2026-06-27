@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { ArrowRight } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent } from "@/components/ui/card";
@@ -21,19 +20,17 @@ export function getStatusStyles(status: string) {
       return "bg-emerald-50 text-emerald-700 border-emerald-200/50";
     case "under review":
       return "bg-amber-50 text-amber-700 border-amber-200/50";
-    case "ai assessment":
-      return "bg-purple-50 text-purple-700 border-purple-200/50";
     case "submitted":
       return "bg-blue-50 text-blue-700 border-blue-200/50";
     case "pending documents":
-    case "pending docs":
       return "bg-orange-50/60 text-orange-700 border-orange-200/50";
+    case "kyc required":
+      return "bg-purple-50 text-purple-700 border-purple-200/50";
     case "rejected":
       return "bg-rose-50 text-rose-700 border-rose-200/50";
     case "draft":
       return "bg-slate-100 text-slate-600 border-slate-200/50";
-    case "cond. approved":
-    case "conditionally approved":
+    case "completed":
       return "bg-teal-50 text-teal-700 border-teal-200/50";
     default:
       return "bg-zinc-50 text-zinc-600 border-zinc-200";
