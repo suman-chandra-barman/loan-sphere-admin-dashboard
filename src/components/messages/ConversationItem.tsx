@@ -1,11 +1,9 @@
-"use client";
-
 import React from "react";
-import { Conversation } from "@/data/mockMessages";
+import { ChatConversation } from "@/types/chat";
 import { cn } from "@/lib/utils";
 
 interface ConversationItemProps {
-  conversation: Conversation;
+  conversation: ChatConversation;
   isActive: boolean;
   onClick: () => void;
 }
@@ -15,6 +13,37 @@ export default function ConversationItem({
   isActive,
   onClick,
 }: ConversationItemProps) {
+  const customerName = conversation.customer?.name || conversation.title || "Customer";
+  
+  const initials = conversation.customer?.initials || customerName
+    .split(" ")
+    .filter(Boolean)
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2) || "U";
+
+  const formatLastMessageAt = (dateStr?: string) => {
+    if (!dateStr) return "";
+    try {
+      const d = new Date(dateStr);
+      const now = new Date();
+      if (d.toDateString() === now.toDateString()) {
+        return d.toLocaleTimeString("en-US", {
+          hour: "numeric",
+          minute: "2-digit",
+          hour12: true,
+        });
+      }
+      return d.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      });
+    } catch {
+      return "";
+    }
+  };
+
   return (
     <button
       onClick={onClick}
@@ -28,11 +57,10 @@ export default function ConversationItem({
       {/* Avatar / Initials */}
       <div
         className={cn(
-          "flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-white text-sm font-bold shadow-xs",
-          conversation.avatarBg || "bg-[#A31D1D]"
+          "flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-white text-sm font-bold shadow-xs select-none bg-[#A31D1D]"
         )}
       >
-        {conversation.userInitials}
+        {initials}
       </div>
 
       {/* Text Info */}
@@ -44,21 +72,21 @@ export default function ConversationItem({
               isActive ? "text-[#A31D1D]" : "text-zinc-900"
             )}
           >
-            {conversation.userFullName}
+            {customerName}
           </p>
           <span className="text-[11px] font-medium text-zinc-400 shrink-0">
-            {conversation.timestamp}
+            {formatLastMessageAt(conversation.lastMessageAt)}
           </span>
         </div>
 
         <p className="text-xs font-medium text-zinc-400 truncate mt-1">
-          {conversation.lastMessage}
+          {conversation.lastMessage || "No messages yet"}
         </p>
       </div>
 
       {/* Unread badge */}
       {conversation.unreadCount > 0 && (
-        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#A31D1D] text-[10px] font-extrabold text-white self-center">
+        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#A31D1D] text-[10px] font-extrabold text-white self-center animate-pulse">
           {conversation.unreadCount}
         </span>
       )}

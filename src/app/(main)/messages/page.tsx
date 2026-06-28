@@ -1,124 +1,191 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import ConversationSidebar from "@/components/messages/ConversationSidebar";
 import ChatWindow from "@/components/messages/ChatWindow";
-import { INITIAL_CONVERSATIONS, Conversation, Message } from "@/data/mockMessages";
+import { ChatConversation, ChatMessage, ConversationSummary } from "@/types/chat";
 import { cn } from "@/lib/utils";
+import {
+  getConversations,
+  getConversationMessages,
+  markConversationRead,
+  assignConversation,
+  sendMessageFallback,
+  sendAttachmentFallback,
+} from "@/services/chatService";
+import { useChatSocket } from "@/hooks/useChatSocket";
 
 export default function MessagesPage() {
-  const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [selectedId, setSelectedId] = useState<string | null>("usr-1"); // Default to Sarah Johnson as in the mockup
-  const [searchQuery, setSearchQuery] = useState("");
+  const [conversations, setConversations] = useState<ChatConversation[]>([]);
+  const [summary, setSummary] = useState<ConversationSummary | null>(null);
+  const [selectedConversation, setSelectedConversation] = useState<ChatConversation | null>(null);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("open");
+  const [typingUser, setTypingUser] = useState<string | null>(null);
+  const [customerPresence, setCustomerPresence] = useState<"online" | "offline">("offline");
   const [loading, setLoading] = useState(true);
 
-  // Load state from local storage or initial mockup data
+  // Auth local state (hydration-safe)
+  const [token, setToken] = useState<string | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("loan_sphere_conversations");
-      if (saved) {
+      const savedToken = localStorage.getItem("accessToken");
+      setToken(savedToken);
+      
+      const userStr = localStorage.getItem("user");
+      if (userStr) {
         try {
-          setConversations(JSON.parse(saved));
-        } catch (e) {
-          console.error("Failed to load conversations from localStorage", e);
-          setConversations(INITIAL_CONVERSATIONS);
+          const userObj = JSON.parse(userStr);
+          setCurrentUserId(userObj.id || userObj.user_id || localStorage.getItem("currentUserId") || null);
+        } catch {
+          setCurrentUserId(localStorage.getItem("currentUserId") || null);
         }
       } else {
-        setConversations(INITIAL_CONVERSATIONS);
-        localStorage.setItem("loan_sphere_conversations", JSON.stringify(INITIAL_CONVERSATIONS));
+        setCurrentUserId(localStorage.getItem("currentUserId") || null);
       }
-      setLoading(false);
     }
   }, []);
 
-  // Save changes to localStorage
-  const saveState = (updated: Conversation[]) => {
-    setConversations(updated);
-    if (typeof window !== "undefined") {
-      localStorage.setItem("loan_sphere_conversations", JSON.stringify(updated));
-    }
-  };
-
-  // Find active conversation
-  const activeConversation = useMemo(() => {
-    return conversations.find((c) => c.id === selectedId) || null;
-  }, [conversations, selectedId]);
-
-  // Handle selecting a conversation
-  const handleSelectConversation = (id: string) => {
-    setSelectedId(id);
-    
-    // Clear unread count on selection
-    const updated = conversations.map((c) => {
-      if (c.id === id) {
-        return { ...c, unreadCount: 0 };
+  // Fetch all conversations
+  async function loadConversations() {
+    try {
+      const response = await getConversations({
+        page: 1,
+        limit: 20,
+        search: search.trim() || undefined,
+        status: statusFilter,
+      });
+      if (response?.success) {
+        setSummary(response.data.summary || null);
+        setConversations(response.data.conversations || []);
       }
-      return c;
-    });
-    saveState(updated);
-  };
-
-  // Handle sending a message
-  const handleSendMessage = (text: string) => {
-    if (!selectedId) return;
-
-    const newMessage: Message = {
-      id: `msg-${Date.now()}`,
-      senderId: "admin-1",
-      senderName: "Alex Rivera",
-      text,
-      timestamp: new Date().toLocaleTimeString("en-US", {
-        hour: "numeric",
-        minute: "2-digit",
-        hour12: true,
-      }) + `, ${new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`,
-      isFromAdmin: true,
-    };
-
-    // Update the conversation's messages and meta information
-    const updatedConversations = conversations.map((c) => {
-      if (c.id === selectedId) {
-        const updatedMessages = [...c.messages, newMessage];
-        return {
-          ...c,
-          lastMessage: text,
-          timestamp: new Date().toLocaleDateString("en-US", {
-            month: "short",
-            day: "numeric",
-            year: "numeric",
-          }),
-          messages: updatedMessages,
-          unreadCount: 0, // Keep at 0 since the admin is active on it
-        };
-      }
-      return c;
-    });
-
-    // Move the active conversation to the top of the sidebar list
-    const activeConvo = updatedConversations.find((c) => c.id === selectedId);
-    const otherConvos = updatedConversations.filter((c) => c.id !== selectedId);
-    
-    if (activeConvo) {
-      saveState([activeConvo, ...otherConvos]);
-    } else {
-      saveState(updatedConversations);
+    } catch (err) {
+      console.error("Error loading conversations", err);
+    } finally {
+      setLoading(false);
     }
-  };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[500px] h-[calc(100vh-180px)] bg-white rounded-3xl border border-zinc-200/80 shadow-xs">
-        <div className="flex flex-col items-center gap-3">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-300 border-t-[#A31D1D]" />
-          <span className="text-xs font-semibold text-zinc-400">Loading messages...</span>
-        </div>
-      </div>
-    );
   }
+
+  // Open / Select a conversation
+  async function handleSelectConversation(conversation: ChatConversation) {
+    setSelectedConversation(conversation);
+    setCustomerPresence("offline");
+    setTypingUser(null);
+    
+    try {
+      const response = await getConversationMessages(conversation.id);
+      setMessages(response.data.messages || []);
+      
+      // Perform initial actions: mark read & self assign if unassigned
+      await markConversationRead(conversation.id);
+      if (!conversation.admin?.id) {
+        await assignConversation(conversation.id);
+      }
+      
+      // Refresh list to update unread badge status
+      await loadConversations();
+    } catch (err) {
+      console.error("Error loading conversation messages", err);
+    }
+  }
+
+  // Hook up WebSocket
+  const { isConnected, sendMessage, sendTyping, markRead } = useChatSocket({
+    conversationId: selectedConversation?.id || null,
+    token,
+    onConnected: () => {
+      console.log("Socket successfully connected & active");
+    },
+    onMessage: (newMessage) => {
+      // Append the message to listing
+      setMessages((prev) => {
+        // Prevent duplicate keys if REST fallback returned first
+        if (prev.some((m) => m.id === newMessage.id)) return prev;
+        return [...prev, newMessage];
+      });
+      markRead();
+      loadConversations();
+    },
+    onTyping: (data) => {
+      if (data.isTyping) {
+        setTypingUser(data.user?.name || "User");
+      } else {
+        setTypingUser(null);
+      }
+    },
+    onPresence: (data) => {
+      if (data.user?.id === selectedConversation?.customer?.id) {
+        setCustomerPresence(data.event === "online" ? "online" : "offline");
+      }
+    },
+    onReadReceipt: (data) => {
+      console.log("Read receipt updated:", data);
+    },
+    onErrorEvent: (data) => {
+      console.error("WebSocket server reported error:", data.message);
+    },
+  });
+
+  // Handle sending message/file
+  const handleSendMessage = async (text: string, file?: File | null) => {
+    if (!selectedConversation) return;
+
+    // Send typing false notification
+    sendTyping(false);
+
+    if (file) {
+      // Attachment fallback sending
+      try {
+        const response = await sendAttachmentFallback(selectedConversation.id, file, text);
+        if (response.success) {
+          // If WS is disconnected, manually append message to list
+          if (!isConnected) {
+            setMessages((prev) => [...prev, response.data]);
+          }
+          await loadConversations();
+        }
+      } catch (err) {
+        console.error("Failed uploading chat attachment", err);
+      }
+    } else {
+      // Try socket sending first
+      const sentByWs = sendMessage(text);
+      if (!sentByWs) {
+        // Try REST API fallback if socket is closed
+        try {
+          const response = await sendMessageFallback(selectedConversation.id, text);
+          if (response.success && !isConnected) {
+            setMessages((prev) => [...prev, response.data]);
+          }
+          await loadConversations();
+        } catch (err) {
+          console.error("Failed sending fallback message", err);
+        }
+      }
+    }
+  };
+
+  // Triggers reload on filter or search updates
+  useEffect(() => {
+    loadConversations();
+  }, [statusFilter]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      loadConversations();
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  const selectedId = selectedConversation?.id || null;
 
   return (
     <div className="space-y-4 h-[calc(100vh-120px)] flex flex-col overflow-hidden pb-2">
-      {/* Header Title & Counter */}
+      {/* Header Title & Subtitle */}
       <div className="flex justify-between items-center shrink-0">
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight text-zinc-900">
@@ -143,8 +210,12 @@ export default function MessagesPage() {
             conversations={conversations}
             selectedId={selectedId}
             onSelect={handleSelectConversation}
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
+            searchQuery={search}
+            onSearchChange={setSearch}
+            statusFilter={statusFilter}
+            onStatusChange={setStatusFilter}
+            summary={summary}
+            loading={loading}
           />
         </div>
 
@@ -156,9 +227,14 @@ export default function MessagesPage() {
           )}
         >
           <ChatWindow
-            conversation={activeConversation}
+            conversation={selectedConversation}
+            messages={messages}
             onSendMessage={handleSendMessage}
-            onBack={() => setSelectedId(null)}
+            onBack={() => setSelectedConversation(null)}
+            isConnected={isConnected}
+            customerPresence={customerPresence}
+            typingUser={typingUser}
+            currentUserId={currentUserId}
           />
         </div>
       </div>
