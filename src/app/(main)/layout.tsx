@@ -14,8 +14,8 @@ export default function AdminLayout({
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,#fff8ee,#f6f7fb_35%,#eef1f7_100%)]">
-      {/* Fires useGetProfileQuery immediately — syncs profile_image into Redux
-          so Topbar shows the correct avatar on every page, not just /settings */}
+      {/* Fires useGetMeQuery immediately — syncs profile_image into Redux
+          so Topbar shows the correct avatar on every page */}
       <ProfileBootstrapper />
       <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
       <div className="lg:pl-64">

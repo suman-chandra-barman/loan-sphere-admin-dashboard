@@ -7,11 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useGetProfileQuery, useUpdateProfileMutation } from "@/redux/api/authApi";
+import { useGetMeQuery, useUpdateMeMutation } from "@/redux/api/authApi";
 
 export default function ProfileSettingsCard() {
-  const { data: profileData, isLoading: isProfileLoading } = useGetProfileQuery(undefined);
-  const [updateProfile, { isLoading: isUpdating }] = useUpdateProfileMutation();
+  const { data: profileData, isLoading: isProfileLoading } = useGetMeQuery(undefined);
+  const [updateProfile, { isLoading: isUpdating }] = useUpdateMeMutation();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -23,8 +23,8 @@ export default function ProfileSettingsCard() {
 
   // Sync state with fetched data
   useEffect(() => {
-    if (profileData?.success && profileData.data?.user) {
-      const { full_name, whatsapp_number, email: userEmail } = profileData.data.user;
+    if (profileData?.success && profileData.data) {
+      const { full_name, whatsapp_number, email: userEmail } = profileData.data;
       setFullName(full_name || "");
       setWhatsappNumber(whatsapp_number || "");
       setEmail(userEmail || "");
@@ -60,8 +60,8 @@ export default function ProfileSettingsCard() {
   };
 
   const handleCancel = () => {
-    if (profileData?.success && profileData.data?.user) {
-      const { full_name, whatsapp_number } = profileData.data.user;
+    if (profileData?.success && profileData.data) {
+      const { full_name, whatsapp_number } = profileData.data;
       setFullName(full_name || "");
       setWhatsappNumber(whatsapp_number || "");
       setProfileImageFile(null);
@@ -120,7 +120,7 @@ export default function ProfileSettingsCard() {
   // Get active display image source
   const getDisplayAvatar = () => {
     if (previewUrl) return previewUrl;
-    const profileImage = profileData?.data?.user?.profile_image;
+    const profileImage = profileData?.data?.profile_image;
     if (profileImage) {
       if (profileImage.startsWith("http://") || profileImage.startsWith("https://")) {
         return profileImage;

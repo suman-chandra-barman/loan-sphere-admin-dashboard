@@ -129,7 +129,7 @@ export default function Topbar({ onOpenSidebar }: TopbarProps) {
               <p className="text-xs font-semibold text-zinc-900 capitalize">
                 {user?.full_name}
               </p>
-              <p className="text-xs text-zinc-500">{user?.email}</p>
+              <p className="text-xs text-zinc-500">{user?.email_address}</p>
             </div>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
