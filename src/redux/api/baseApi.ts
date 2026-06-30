@@ -33,5 +33,8 @@ export const baseApi = createApi({
     "LoanTemplateDetail",
     "KycList",
     "KycDetails",
+    "CaseManagers",
+    "ManagerAvailability",
+    "Appointments",
   ],
 });
