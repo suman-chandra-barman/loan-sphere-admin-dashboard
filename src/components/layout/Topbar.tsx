@@ -41,6 +41,7 @@ export default function Topbar({ onOpenSidebar }: TopbarProps) {
     "/users": { title: "Users", section: "Dashboard" },
     "/applications": { title: "Applications", section: "Dashboard" },
     "/loan-management": { title: "Loan Management", section: "Dashboard" },
+    "/kyc": { title: "KYC Verification", section: "Dashboard" },
     "/faq": { title: "FAQ", section: "Dashboard" },
     "/messages": { title: "Messages", section: "Dashboard" },
     "/my-profile": { title: "My Profile", section: "Dashboard" },
