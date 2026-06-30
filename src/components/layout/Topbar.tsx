@@ -1,6 +1,7 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
-import { ChevronDown, LogOut, Menu, Settings, User } from "lucide-react";
+import { ChevronDown, LogOut, Menu, Settings } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
 import { useEffect, useState } from "react";
@@ -118,8 +119,9 @@ export default function ManagerModal({
           onOpenChange(false);
         }
       }
-    } catch (err: any) {
-      toast.error(err?.data?.message || "Failed to save case manager profile");
+    } catch (err: unknown) {
+      const error = err as { data?: { message?: string } };
+      toast.error(error?.data?.message || "Failed to save case manager profile");
     }
   };
 

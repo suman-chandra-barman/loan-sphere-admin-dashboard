@@ -161,7 +161,7 @@ export default function SupportPage() {
               <User className="h-10 w-10 mx-auto text-zinc-300 mb-2" />
               <p className="text-sm font-bold text-zinc-800">No Advisors Registered</p>
               <p className="text-xs text-zinc-500 max-w-sm mx-auto mt-1">
-                You haven't added any case managers yet. Register your first advisor to configure weekly bookings.
+                You haven&lsquo;t added any case managers yet. Register your first advisor to configure weekly bookings.
               </p>
             </div>
           )}

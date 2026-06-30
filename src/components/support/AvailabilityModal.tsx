@@ -93,8 +93,9 @@ export default function AvailabilityModal({
         toast.success("Availability rule updated successfully");
         setEditingRuleId(null);
       }
-    } catch (err: any) {
-      toast.error(err?.data?.message || "Failed to update availability rule");
+    } catch (err: unknown) {
+      const error = err as { data?: { message?: string } };
+      toast.error(error?.data?.message || "Failed to update availability rule");
     }
   };
 
@@ -129,8 +130,9 @@ export default function AvailabilityModal({
       if (res.success) {
         toast.success("Availability rules created successfully");
       }
-    } catch (err: any) {
-      toast.error(err?.data?.message || "Failed to create availability schedule rules");
+    } catch (err: unknown) {
+      const error = err as { data?: { message?: string } };
+      toast.error(error?.data?.message || "Failed to create availability schedule rules");
     }
   };
 

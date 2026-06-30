@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Check, Phone, MessageSquare, Calendar, User, Clipboard, UserCheck, AlertOctagon } from "lucide-react";
+import { Check, Phone, MessageSquare, Calendar, UserCheck } from "lucide-react";
 import { toast } from "react-toastify";
 import { useUpdateAppointmentStatusMutation } from "@/redux/api/supportApi";
 import type { Appointment } from "@/types/support";
@@ -40,8 +40,9 @@ export default function AppointmentTable({
       if (res.success) {
         toast.success("Appointment status updated to completed");
       }
-    } catch (err: any) {
-      toast.error(err?.data?.message || "Failed to update appointment status");
+    } catch (err: unknown) {
+      const error = err as { data?: { message?: string } };
+      toast.error(error?.data?.message || "Failed to update appointment status");
     }
   };
 
