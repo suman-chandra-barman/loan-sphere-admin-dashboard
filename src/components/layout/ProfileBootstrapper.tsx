@@ -17,11 +17,16 @@
  */
 
 import { useGetMeQuery } from "@/redux/api/authApi";
+import SplashScreen from "@/components/ui/SplashScreen";
 
 export default function ProfileBootstrapper() {
   // Skip the query when there is no authenticated session
   // (e.g. during server render or before the Redux store is hydrated).
-  useGetMeQuery(undefined);
+  const { isLoading } = useGetMeQuery(undefined);
+
+  if (isLoading) {
+    return <SplashScreen message="INITIALIZING SESSION" />;
+  }
 
   // Renders nothing — this component exists purely for its side-effects.
   return null;

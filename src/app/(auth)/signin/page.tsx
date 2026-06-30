@@ -21,6 +21,7 @@ import { useLoginMutation } from "@/redux/api/authApi";
 import { setCredentials } from "@/redux/slices/authSlice";
 import { validateEmail } from "@/schemas/auth";
 import { useAppDispatch } from "@/redux/hooks";
+import SplashScreen from "@/components/ui/SplashScreen";
 
 const features = [
   { icon: Zap, text: "AI-powered risk scoring in seconds" },
@@ -76,6 +77,7 @@ export default function SignInPage() {
 
   return (
     <div className="min-h-screen flex bg-[#F5F0EB]">
+      {isLoading && <SplashScreen message="AUTHENTICATING" />}
       {/* ── Left Panel ── */}
       <div
         className="hidden lg:flex flex-col justify-between w-[46%] p-10 relative overflow-hidden"
