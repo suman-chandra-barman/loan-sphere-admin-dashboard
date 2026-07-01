@@ -102,9 +102,28 @@ export default function LoanTypeModal({
       );
       onClose();
     } catch (err: unknown) {
-      const message =
-        (err as { data?: { message?: string } })?.data?.message ||
+      const errorObj = err as {
+        data?: {
+          message?: string;
+          data?: Record<string, string[]>;
+        };
+      };
+      let message =
+        errorObj?.data?.message ||
         (isEdit ? "Failed to update loan type." : "Failed to create loan type.");
+
+      // Extract specific validation message if available
+      const validationErrors = errorObj?.data?.data;
+      if (validationErrors) {
+        const firstErrorKey = Object.keys(validationErrors)[0];
+        if (firstErrorKey) {
+          const fieldErrors = validationErrors[firstErrorKey];
+          if (Array.isArray(fieldErrors) && fieldErrors[0]) {
+            message = fieldErrors[0];
+          }
+        }
+      }
+
       toast.error(message);
       setSubmitError(message);
     }

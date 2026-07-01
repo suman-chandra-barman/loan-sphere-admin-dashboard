@@ -52,9 +52,26 @@ export default function EditTemplateModal({ template, onClose }: EditTemplateMod
       toast.success(res.message || "Template updated successfully!");
       onClose();
     } catch (err: unknown) {
-      const message =
-        (err as { data?: { message?: string } })?.data?.message ||
-        "Failed to update template. Please try again.";
+      const errorObj = err as {
+        data?: {
+          message?: string;
+          data?: Record<string, string[]>;
+        };
+      };
+      let message = errorObj?.data?.message || "Failed to update template. Please try again.";
+
+      // Extract specific validation message if available
+      const validationErrors = errorObj?.data?.data;
+      if (validationErrors) {
+        const firstErrorKey = Object.keys(validationErrors)[0];
+        if (firstErrorKey) {
+          const fieldErrors = validationErrors[firstErrorKey];
+          if (Array.isArray(fieldErrors) && fieldErrors[0]) {
+            message = fieldErrors[0];
+          }
+        }
+      }
+
       toast.error(message);
       setSubmitError(message);
     }
