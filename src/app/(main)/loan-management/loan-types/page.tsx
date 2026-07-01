@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, useCallback, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, Plus, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,12 +24,15 @@ const SORT_OPTIONS = [
 
 const LIMIT = 9;
 
-export default function LoanTypesPage() {
+function LoanTypesContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const editId = searchParams.get("edit");
+  const editSearch = searchParams.get("search");
 
   // ── Filters ───────────────────────────────────────────────────────────────
-  const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [search, setSearch] = useState(editSearch || "");
+  const [debouncedSearch, setDebouncedSearch] = useState(editSearch || "");
   const [sortIndex, setSortIndex] = useState(0);
   const [page, setPage] = useState(1);
 
@@ -73,6 +76,21 @@ export default function LoanTypesPage() {
   const meta = data?.meta;
   const totalPage = meta?.totalPage ?? 1;
   const total = meta?.total ?? 0;
+
+  useEffect(() => {
+    if (editId && loanTypes.length > 0) {
+      const found = loanTypes.find((lt) => lt.id === editId);
+      if (found) {
+        setModalTarget(found);
+        // Clear the edit/search query params from the URL
+        const params = new URLSearchParams(searchParams.toString());
+        params.delete("edit");
+        params.delete("search");
+        const newQs = params.toString();
+        router.replace(`/loan-management/loan-types${newQs ? `?${newQs}` : ""}`);
+      }
+    }
+  }, [editId, loanTypes, router, searchParams]);
   const summary = meta?.summary;
 
   // ── Loading ───────────────────────────────────────────────────────────────
@@ -204,5 +222,13 @@ export default function LoanTypesPage() {
         />
       )}
     </div>
+  );
+}
+
+export default function LoanTypesPage() {
+  return (
+    <Suspense fallback={<LoanTypesSkeleton />}>
+      <LoanTypesContent />
+    </Suspense>
   );
 }

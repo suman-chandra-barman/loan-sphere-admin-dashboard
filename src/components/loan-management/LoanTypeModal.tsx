@@ -91,33 +91,21 @@ export default function LoanTypeModal({
     fd.append("isActive", String(isActive));
     if (iconFile) fd.append("iconImage", iconFile);
 
-    const toastId = toast.loading(isEdit ? "Updating loan type..." : "Creating loan type...");
-
     try {
       if (isEdit && loanType) {
         await updateLoanType({ id: loanType.id, formData: fd }).unwrap();
       } else {
         await createLoanType(fd).unwrap();
       }
-      toast.update(toastId, {
-        render: isEdit ? "Loan type updated successfully!" : "Loan type created successfully!",
-        type: "success",
-        isLoading: false,
-        autoClose: 3000,
-        closeOnClick: true,
-      });
+      toast.success(
+        isEdit ? "Loan type updated successfully!" : "Loan type created successfully!"
+      );
       onClose();
     } catch (err: unknown) {
       const message =
         (err as { data?: { message?: string } })?.data?.message ||
         (isEdit ? "Failed to update loan type." : "Failed to create loan type.");
-      toast.update(toastId, {
-        render: message,
-        type: "error",
-        isLoading: false,
-        autoClose: 4000,
-        closeOnClick: true,
-      });
+      toast.error(message);
       setSubmitError(message);
     }
   };

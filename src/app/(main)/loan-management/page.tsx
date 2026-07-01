@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,11 +8,25 @@ import StatsCards from "@/components/loan-management/StatsCards";
 import NavSectionCards from "@/components/loan-management/NavSectionCards";
 import LoanTypeCard from "@/components/loan-management/LoanTypeCard";
 import LoanManagementSkeleton from "@/components/loan-management/skeletons/LoanManagementSkeleton";
-import { useGetLoanManagementSummaryQuery } from "@/redux/api/loanManagementApi";
+import LoanTypeModal from "@/components/loan-management/LoanTypeModal";
+import {
+  useGetLoanManagementSummaryQuery,
+  useGetTemplatesDropdownQuery,
+} from "@/redux/api/loanManagementApi";
+import { LoanType } from "@/types/loan";
 
 export default function LoanManagementPage() {
   const router = useRouter();
   const { data, isLoading, isError } = useGetLoanManagementSummaryQuery();
+  const { data: dropdownData } = useGetTemplatesDropdownQuery();
+  const templates = dropdownData?.data ?? [];
+
+  // ── Modal State ───────────────────────────────────────────────────────────
+  const [modalTarget, setModalTarget] = useState<LoanType | null | false>(false);
+  const isModalOpen = modalTarget !== false;
+
+  const openEdit = (loanType: LoanType) => setModalTarget(loanType);
+  const closeModal = () => setModalTarget(false);
 
   const handleNavigate = (key: string) => {
     if (key === "loanTypes") {
@@ -113,13 +128,22 @@ export default function LoanManagementPage() {
               <LoanTypeCard
                 key={loanType.id}
                 loanType={loanType}
-                onEdit={() => router.push(`/loan-management/loan-types`)}
+                onEdit={() => openEdit(loanType)}
                 onDelete={() => router.push(`/loan-management/loan-types`)}
               />
             ))}
           </div>
         )}
       </div>
+
+      {/* ── Create / Edit Loan Type Modal ─────────────────────────────────── */}
+      {isModalOpen && (
+        <LoanTypeModal
+          loanType={modalTarget ?? undefined}
+          templates={templates}
+          onClose={closeModal}
+        />
+      )}
     </div>
   );
 }

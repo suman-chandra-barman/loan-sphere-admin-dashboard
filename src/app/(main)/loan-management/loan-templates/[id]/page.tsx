@@ -39,27 +39,14 @@ export default function TemplateDetailPage() {
   const [publishTemplate, { isLoading: isPublishing }] = usePublishLoanTemplateMutation();
 
   const handlePublish = async () => {
-    const toastId = toast.loading("Publishing template...");
     try {
       const res = await publishTemplate(templateId).unwrap();
-      toast.update(toastId, {
-        render: res.message || "Template published successfully!",
-        type: "success",
-        isLoading: false,
-        autoClose: 3000,
-        closeOnClick: true,
-      });
+      toast.success(res.message || "Template published successfully!");
     } catch (err: unknown) {
       const message =
         (err as { data?: { message?: string } })?.data?.message ||
         "Failed to publish template.";
-      toast.update(toastId, {
-        render: message,
-        type: "error",
-        isLoading: false,
-        autoClose: 4000,
-        closeOnClick: true,
-      });
+      toast.error(message);
     }
   };
 

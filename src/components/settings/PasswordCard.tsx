@@ -40,7 +40,6 @@ export default function PasswordCard() {
       return;
     }
 
-    const toastId = toast.loading("Updating password...");
     try {
       const response = await changePassword({
         current_password: oldPassword,
@@ -49,31 +48,16 @@ export default function PasswordCard() {
       }).unwrap();
 
       if (response.success) {
-        toast.update(toastId, {
-          render: response.message || "Password changed successfully!",
-          type: "success",
-          isLoading: false,
-          autoClose: 3000,
-        });
+        toast.success(response.message || "Password changed successfully!");
         // Clear fields
         setOldPassword("");
         setNewPassword("");
         setConfirmPassword("");
       } else {
-        toast.update(toastId, {
-          render: response.message || "Failed to change password.",
-          type: "error",
-          isLoading: false,
-          autoClose: 4000,
-        });
+        toast.error(response.message || "Failed to change password.");
       }
     } catch (err: any) {
-      toast.update(toastId, {
-        render: err?.data?.message || "An error occurred while changing password.",
-        type: "error",
-        isLoading: false,
-        autoClose: 4000,
-      });
+      toast.error(err?.data?.message || "An error occurred while changing password.");
     }
   };
 

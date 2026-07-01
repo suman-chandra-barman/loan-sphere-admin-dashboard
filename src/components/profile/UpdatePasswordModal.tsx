@@ -45,7 +45,6 @@ export default function UpdatePasswordModal({
       return;
     }
 
-    const toastId = toast.loading("Updating password...");
     try {
       const response = await resetPassword({
         new_password: newPassword,
@@ -56,28 +55,12 @@ export default function UpdatePasswordModal({
         setNewPassword("");
         setConfirmPassword("");
         onOpenChange(false);
-
-        toast.update(toastId, {
-          render: response.message || "Password changed successfully!",
-          type: "success",
-          isLoading: false,
-          autoClose: 3000,
-        });
+        toast.success(response.message || "Password changed successfully!");
       } else {
-        toast.update(toastId, {
-          render: response?.message || "Failed to update password.",
-          type: "error",
-          isLoading: false,
-          autoClose: 3000,
-        });
+        toast.error(response?.message || "Failed to update password.");
       }
     } catch (err: any) {
-      toast.update(toastId, {
-        render: err?.data?.message || "Failed to update password.",
-        type: "error",
-        isLoading: false,
-        autoClose: 3000,
-      });
+      toast.error(err?.data?.message || "Failed to update password.");
     }
   };
 

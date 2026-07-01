@@ -229,32 +229,16 @@ export default function MessagesList({
 
   const handleDelete = async () => {
     if (!msgToDelete) return;
-    const toastId = toast.loading("Deleting message...");
     try {
       const response = await deleteMessage(msgToDelete.id).unwrap();
       if (response.success) {
-        toast.update(toastId, {
-          render: response.message || "Message deleted successfully!",
-          type: "success",
-          isLoading: false,
-          autoClose: 3000,
-        });
+        toast.success(response.message || "Message deleted successfully!");
         setMsgToDelete(null);
       } else {
-        toast.update(toastId, {
-          render: "Failed to delete message.",
-          type: "error",
-          isLoading: false,
-          autoClose: 4000,
-        });
+        toast.error("Failed to delete message.");
       }
     } catch (err: any) {
-      toast.update(toastId, {
-        render: err?.data?.message || "An error occurred.",
-        type: "error",
-        isLoading: false,
-        autoClose: 4000,
-      });
+      toast.error(err?.data?.message || "An error occurred.");
     }
   };
 

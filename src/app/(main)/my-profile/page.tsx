@@ -109,7 +109,6 @@ export default function MyProfilePage() {
 
       // If not currently editing other fields, upload instantly
       if (!isEditing) {
-        const toastId = toast.loading("Uploading profile image...");
         try {
           const formData = new FormData();
           formData.append("full_name", fullName);
@@ -121,20 +120,10 @@ export default function MyProfilePage() {
           const res = await updateMe(formData).unwrap();
           if (res.success) {
             setImageFile(null);
-            toast.update(toastId, {
-              render: "Profile picture updated successfully!",
-              type: "success",
-              isLoading: false,
-              autoClose: 3000,
-            });
+            toast.success("Profile picture updated successfully!");
           }
         } catch (err: any) {
-          toast.update(toastId, {
-            render: err?.data?.message || "Failed to update profile picture.",
-            type: "error",
-            isLoading: false,
-            autoClose: 3000,
-          });
+          toast.error(err?.data?.message || "Failed to update profile picture.");
         }
       } else {
         toast.info("Image selected. Save profile to upload.");
@@ -150,8 +139,6 @@ export default function MyProfilePage() {
     }
 
     setIsSavingProfile(true);
-    const toastId = toast.loading("Saving profile updates...");
-    
     try {
       const formData = new FormData();
       formData.append("full_name", fullName.trim());
@@ -166,27 +153,12 @@ export default function MyProfilePage() {
       if (res.success) {
         setIsEditing(false);
         setImageFile(null);
-        toast.update(toastId, {
-          render: res.message || "Profile updated successfully!",
-          type: "success",
-          isLoading: false,
-          autoClose: 3000,
-        });
+        toast.success(res.message || "Profile updated successfully!");
       } else {
-        toast.update(toastId, {
-          render: res.message || "Failed to update profile.",
-          type: "error",
-          isLoading: false,
-          autoClose: 3000,
-        });
+        toast.error(res.message || "Failed to update profile.");
       }
     } catch (err: any) {
-      toast.update(toastId, {
-        render: err?.data?.message || "Failed to update profile.",
-        type: "error",
-        isLoading: false,
-        autoClose: 3000,
-      });
+      toast.error(err?.data?.message || "Failed to update profile.");
     } finally {
       setIsSavingProfile(false);
     }

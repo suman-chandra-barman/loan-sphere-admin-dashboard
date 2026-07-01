@@ -87,33 +87,17 @@ export default function ProfileSettingsCard() {
       formData.append("profile_image", profileImageFile);
     }
 
-    const toastId = toast.loading("Saving changes...");
     try {
       const response = await updateProfile(formData).unwrap();
       if (response.success) {
-        toast.update(toastId, {
-          render: "Profile updated successfully!",
-          type: "success",
-          isLoading: false,
-          autoClose: 3000,
-        });
+        toast.success("Profile updated successfully!");
         setProfileImageFile(null);
         setPreviewUrl(null);
       } else {
-        toast.update(toastId, {
-          render: response.message || "Failed to update profile.",
-          type: "error",
-          isLoading: false,
-          autoClose: 4000,
-        });
+        toast.error(response.message || "Failed to update profile.");
       }
     } catch (err: any) {
-      toast.update(toastId, {
-        render: err?.data?.message || "An error occurred while saving profile settings.",
-        type: "error",
-        isLoading: false,
-        autoClose: 4000,
-      });
+      toast.error(err?.data?.message || "An error occurred while saving profile settings.");
     }
   };
 

@@ -133,12 +133,6 @@ export default function TemplatesTable({ templates, isFetching }: TemplatesTable
                         >
                           <Pencil className="h-4 w-4" />
                         </button>
-                        <button
-                          className="p-1 rounded-lg text-rose-500 hover:text-rose-600 transition-colors cursor-pointer"
-                          title="Delete Template"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
                       </div>
                     </td>
                   </tr>

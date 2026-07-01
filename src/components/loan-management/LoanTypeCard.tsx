@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Pencil, Trash2, ImageOff } from "lucide-react";
 import { LoanType } from "@/types/loan";
 import { Card } from "@/components/ui/card";
@@ -20,6 +20,10 @@ export default function LoanTypeCard({
 }: LoanTypeCardProps) {
   const [toggleStatus, { isLoading }] = useToggleLoanTypeStatusMutation();
   const [optimisticActive, setOptimisticActive] = useState(loanType.isActive);
+
+  useEffect(() => {
+    setOptimisticActive(loanType.isActive);
+  }, [loanType.isActive]);
 
   const handleToggle = async () => {
     const newValue = !optimisticActive;
@@ -132,13 +136,6 @@ export default function LoanTypeCard({
             title="Edit Loan Type"
           >
             <Pencil className="h-4 w-4" />
-          </button>
-          <button
-            onClick={onDelete}
-            className="p-1 rounded-lg text-rose-500 hover:text-rose-600 transition-colors cursor-pointer"
-            title="Delete Loan Type"
-          >
-            <Trash2 className="h-4 w-4" />
           </button>
         </div>
       </div>
