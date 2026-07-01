@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,13 +22,6 @@ export default function EditSectionModal({ section, onClose }: EditSectionModalP
   const [description, setDescription] = useState(section.description);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitError, setSubmitError] = useState("");
-
-  useEffect(() => {
-    setTitle(section.title);
-    setDescription(section.description);
-    setErrors({});
-    setSubmitError("");
-  }, [section]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

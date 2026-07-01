@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { X, Upload, ImageOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,38 +34,16 @@ export default function LoanTypeModal({
   const isSubmitting = isCreating || isUpdating;
 
   // ── Form State ────────────────────────────────────────────────────────────
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [templateId, setTemplateId] = useState("");
-  const [isActive, setIsActive] = useState(true);
+  const [name, setName] = useState(loanType?.name ?? "");
+  const [description, setDescription] = useState(loanType?.description ?? "");
+  const [templateId, setTemplateId] = useState(loanType?.assignedTemplate?.id ?? (templates[0]?.id ?? ""));
+  const [isActive, setIsActive] = useState(loanType?.isActive ?? true);
   const [iconFile, setIconFile] = useState<File | null>(null);
-  const [iconPreview, setIconPreview] = useState<string | null>(null);
+  const [iconPreview, setIconPreview] = useState<string | null>(
+    loanType?.iconImageUrl ? `${BASE_URL}${loanType.iconImageUrl}` : null
+  );
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitError, setSubmitError] = useState("");
-
-  // Populate form when editing
-  useEffect(() => {
-    if (loanType) {
-      setName(loanType.name);
-      setDescription(loanType.description ?? "");
-      setTemplateId(loanType.assignedTemplate?.id ?? "");
-      setIsActive(loanType.isActive);
-      setIconFile(null);
-      // Show the existing icon as preview
-      setIconPreview(
-        loanType.iconImageUrl ? `${BASE_URL}${loanType.iconImageUrl}` : null
-      );
-    } else {
-      setName("");
-      setDescription("");
-      setTemplateId(templates[0]?.id ?? "");
-      setIsActive(true);
-      setIconFile(null);
-      setIconPreview(null);
-    }
-    setErrors({});
-    setSubmitError("");
-  }, [loanType, templates]);
 
   const handleIconChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -192,6 +170,7 @@ export default function LoanTypeModal({
               {/* Preview */}
               <div className="h-12 w-12 rounded-xl overflow-hidden border border-zinc-200 flex items-center justify-center bg-zinc-100 shrink-0">
                 {iconPreview ? (
+                  // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={iconPreview}
                     alt="Icon preview"

@@ -129,7 +129,6 @@ export default function LoanManagementPage() {
                 key={loanType.id}
                 loanType={loanType}
                 onEdit={() => openEdit(loanType)}
-                onDelete={() => router.push(`/loan-management/loan-types`)}
               />
             ))}
           </div>
@@ -139,6 +138,7 @@ export default function LoanManagementPage() {
       {/* ── Create / Edit Loan Type Modal ─────────────────────────────────── */}
       {isModalOpen && (
         <LoanTypeModal
+          key={modalTarget ? modalTarget.id : "create"}
           loanType={modalTarget ?? undefined}
           templates={templates}
           onClose={closeModal}

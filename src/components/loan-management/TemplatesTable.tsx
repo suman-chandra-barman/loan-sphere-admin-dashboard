@@ -154,6 +154,7 @@ export default function TemplatesTable({ templates, isFetching }: TemplatesTable
 
       {modalTarget && (
         <EditTemplateModal
+          key={modalTarget.id}
           template={modalTarget}
           onClose={() => setModalTarget(null)}
         />

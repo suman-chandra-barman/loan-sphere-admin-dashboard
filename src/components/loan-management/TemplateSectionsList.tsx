@@ -113,6 +113,7 @@ export default function TemplateSectionsList({
 
       {editTarget && (
         <EditSectionModal
+          key={editTarget.id}
           section={editTarget}
           onClose={() => setEditTarget(null)}
         />

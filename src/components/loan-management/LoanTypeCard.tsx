@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { Pencil, Trash2, ImageOff } from "lucide-react";
+import React, { useState } from "react";
+import { Pencil, ImageOff } from "lucide-react";
 import { LoanType } from "@/types/loan";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -10,20 +10,20 @@ import { useToggleLoanTypeStatusMutation } from "@/redux/api/loanManagementApi";
 interface LoanTypeCardProps {
   loanType: LoanType;
   onEdit: (loanType: LoanType) => void;
-  onDelete: () => void;
 }
 
 export default function LoanTypeCard({
   loanType,
   onEdit,
-  onDelete,
 }: LoanTypeCardProps) {
   const [toggleStatus, { isLoading }] = useToggleLoanTypeStatusMutation();
+  const [prevIsActive, setPrevIsActive] = useState(loanType.isActive);
   const [optimisticActive, setOptimisticActive] = useState(loanType.isActive);
 
-  useEffect(() => {
+  if (loanType.isActive !== prevIsActive) {
+    setPrevIsActive(loanType.isActive);
     setOptimisticActive(loanType.isActive);
-  }, [loanType.isActive]);
+  }
 
   const handleToggle = async () => {
     const newValue = !optimisticActive;
@@ -46,6 +46,7 @@ export default function LoanTypeCard({
             {/* Icon Image */}
             <div className="h-10 w-10 rounded-xl bg-zinc-100 overflow-hidden flex items-center justify-center shrink-0">
               {loanType.iconImageUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={`${baseUrl}${loanType.iconImageUrl}`}
                   alt={loanType.name}

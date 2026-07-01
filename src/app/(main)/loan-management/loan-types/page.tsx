@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, useEffect, Suspense } from "react";
+import React, { useState, useCallback, useEffect, Suspense, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, Plus, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -72,7 +72,7 @@ function LoanTypesContent() {
   const openEdit = (loanType: LoanType) => setModalTarget(loanType);
   const closeModal = () => setModalTarget(false);
 
-  const loanTypes = data?.data ?? [];
+  const loanTypes = useMemo(() => data?.data ?? [], [data?.data]);
   const meta = data?.meta;
   const totalPage = meta?.totalPage ?? 1;
   const total = meta?.total ?? 0;
@@ -81,6 +81,7 @@ function LoanTypesContent() {
     if (editId && loanTypes.length > 0) {
       const found = loanTypes.find((lt) => lt.id === editId);
       if (found) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setModalTarget(found);
         // Clear the edit/search query params from the URL
         const params = new URLSearchParams(searchParams.toString());
@@ -196,7 +197,6 @@ function LoanTypesContent() {
                 key={loanType.id}
                 loanType={loanType}
                 onEdit={openEdit}
-                onDelete={() => {}}
               />
             ))}
           </div>
@@ -216,6 +216,7 @@ function LoanTypesContent() {
       {/* ── Create / Edit Loan Type Modal ─────────────────────────────────── */}
       {isModalOpen && (
         <LoanTypeModal
+          key={modalTarget ? modalTarget.id : "create"}
           loanType={modalTarget ?? undefined}
           templates={templates}
           onClose={closeModal}

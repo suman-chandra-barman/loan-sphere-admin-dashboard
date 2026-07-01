@@ -29,8 +29,11 @@ export default function DeleteSectionModal({ section, onClose }: DeleteSectionMo
       }).unwrap();
       toast.success("Section deleted successfully!");
       onClose();
-    } catch (err: any) {
-      toast.error(err?.data?.message || "Failed to delete section.");
+    } catch (err: unknown) {
+      const message =
+        (err as { data?: { message?: string } })?.data?.message ||
+        "Failed to delete section.";
+      toast.error(message);
     }
   };
 
