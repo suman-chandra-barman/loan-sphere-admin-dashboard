@@ -1,15 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   FileText,
   Layers,
   Calendar,
   Pencil,
-  Trash2,
+  ArrowRight,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { LoanTemplate } from "@/types/loan";
+import EditTemplateModal from "./EditTemplateModal";
 
 function formatDate(iso: string) {
   try {
@@ -30,6 +31,7 @@ interface TemplatesTableProps {
 
 export default function TemplatesTable({ templates, isFetching }: TemplatesTableProps) {
   const router = useRouter();
+  const [modalTarget, setModalTarget] = useState<LoanTemplate | null>(null);
 
   return (
     <Card
@@ -127,11 +129,18 @@ export default function TemplatesTable({ templates, isFetching }: TemplatesTable
                     <td className="py-4 px-6 text-right">
                       <div className="flex items-center justify-end gap-3.5">
                         <button
-                          onClick={goToDetail}
+                          onClick={() => setModalTarget(tpl)}
                           className="p-1 rounded-lg text-zinc-400 hover:text-zinc-600 transition-colors cursor-pointer"
                           title="Edit Template"
                         >
                           <Pencil className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={goToDetail}
+                          className="p-1 rounded-lg text-zinc-400 hover:text-[#A31D1D] transition-colors cursor-pointer"
+                          title="View Details"
+                        >
+                          <ArrowRight className="h-4 w-4" />
                         </button>
                       </div>
                     </td>
@@ -142,6 +151,13 @@ export default function TemplatesTable({ templates, isFetching }: TemplatesTable
           </tbody>
         </table>
       </div>
+
+      {modalTarget && (
+        <EditTemplateModal
+          template={modalTarget}
+          onClose={() => setModalTarget(null)}
+        />
+      )}
     </Card>
   );
 }

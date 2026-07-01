@@ -94,6 +94,22 @@ export const loanManagementApi = baseApi.injectEndpoints({
       invalidatesTags: ["LoanTemplates", "LoanManagementSummary"],
     }),
 
+    updateLoanTemplate: builder.mutation<
+      { success: boolean; message: string; data: unknown },
+      { id: string; name: string; description: string; status: string }
+    >({
+      query: ({ id, ...body }) => ({
+        url: `/admin/loan-templates/${id}/`,
+        method: "PATCH",
+        body,
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: "LoanTemplateDetail", id },
+        "LoanTemplates",
+        "LoanManagementSummary",
+      ],
+    }),
+
     publishLoanTemplate: builder.mutation<LoanTemplateCreateResponse, string>({
       query: (id) => ({
         url: `/admin/loan-templates/${id}/publish/`,
@@ -144,6 +160,7 @@ export const {
   useGetLoanTemplatesQuery,
   useGetLoanTemplateDetailQuery,
   useCreateLoanTemplateMutation,
+  useUpdateLoanTemplateMutation,
   usePublishLoanTemplateMutation,
   useAddTemplateSectionMutation,
   useGetTemplatesDropdownQuery,
