@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { LoanTemplateSection } from "@/types/loan";
+import EditSectionModal from "./EditSectionModal";
+import DeleteSectionModal from "./DeleteSectionModal";
 
 function formatDate(iso: string) {
   try {
@@ -28,6 +30,8 @@ export default function TemplateSectionsList({
   onAddSection,
 }: TemplateSectionsListProps) {
   const sorted = [...sections].sort((a, b) => a.order - b.order);
+  const [editTarget, setEditTarget] = useState<LoanTemplateSection | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<LoanTemplateSection | null>(null);
 
   return (
     <Card className="bg-white border border-zinc-200/70 shadow-sm rounded-2xl p-6">
@@ -88,12 +92,14 @@ export default function TemplateSectionsList({
               {/* Actions */}
               <div className="flex flex-col items-center gap-2 shrink-0 self-start pl-2 mt-0.5">
                 <button
+                  onClick={() => setEditTarget(sec)}
                   className="p-1.5 text-zinc-400 hover:text-zinc-600 rounded-lg hover:bg-zinc-50 transition-colors cursor-pointer"
                   title="Edit Section"
                 >
                   <Pencil className="h-4 w-4" />
                 </button>
                 <button
+                  onClick={() => setDeleteTarget(sec)}
                   className="p-1.5 text-rose-500 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors cursor-pointer"
                   title="Delete Section"
                 >
@@ -104,6 +110,20 @@ export default function TemplateSectionsList({
           ))
         )}
       </div>
+
+      {editTarget && (
+        <EditSectionModal
+          section={editTarget}
+          onClose={() => setEditTarget(null)}
+        />
+      )}
+
+      {deleteTarget && (
+        <DeleteSectionModal
+          section={deleteTarget}
+          onClose={() => setDeleteTarget(null)}
+        />
+      )}
     </Card>
   );
 }

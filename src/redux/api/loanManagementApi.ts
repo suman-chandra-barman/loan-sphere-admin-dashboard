@@ -140,6 +140,37 @@ export const loanManagementApi = baseApi.injectEndpoints({
       ],
     }),
 
+    updateTemplateSection: builder.mutation<
+      { success: boolean; message: string; data: unknown },
+      { id: string; title: string; description: string; templateId: string }
+    >({
+      query: ({ id, title, description }) => ({
+        url: `/admin/template-sections/${id}/`,
+        method: "PATCH",
+        body: { title, description },
+      }),
+      invalidatesTags: (result, error, { templateId }) => [
+        { type: "LoanTemplateDetail", id: templateId },
+        "LoanTemplates",
+        "LoanManagementSummary",
+      ],
+    }),
+
+    deleteTemplateSection: builder.mutation<
+      { success: boolean; message: string; data: unknown },
+      { id: string; templateId: string }
+    >({
+      query: ({ id }) => ({
+        url: `/admin/template-sections/${id}/`,
+        method: "DELETE",
+      }),
+      invalidatesTags: (result, error, { templateId }) => [
+        { type: "LoanTemplateDetail", id: templateId },
+        "LoanTemplates",
+        "LoanManagementSummary",
+      ],
+    }),
+
     // ── Templates Dropdown ─────────────────────────────────────────────────
     getTemplatesDropdown: builder.query<TemplateDropdownResponse, void>({
       query: () => ({
@@ -163,6 +194,8 @@ export const {
   useUpdateLoanTemplateMutation,
   usePublishLoanTemplateMutation,
   useAddTemplateSectionMutation,
+  useUpdateTemplateSectionMutation,
+  useDeleteTemplateSectionMutation,
   useGetTemplatesDropdownQuery,
 } = loanManagementApi;
 
